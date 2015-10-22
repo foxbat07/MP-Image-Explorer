@@ -1,0 +1,10 @@
+ofxThreadedImageLoader
+ofxXmlSettings
+ofxExif
+ofxHistogram
+ofxPSBlend
+ofxSceneManager
+ofxSecondWindow
+ofxSelfOrganizingMap
+ofxTween
+ofxUI
