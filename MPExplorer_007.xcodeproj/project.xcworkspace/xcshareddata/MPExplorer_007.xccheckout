@@ -12,14 +12,14 @@
 	<dict>
 		<key>1ACD9576A61F2B707BD0FBE307531E445F127D99</key>
 		<string>https://github.com/genekogan/ofxSelfOrganizingMap.git</string>
+		<key>5B9A4AB127E2ED3C90A0007758EAD8669569A707</key>
+		<string>https://github.com/mohithingorani/MPExplorer_004.git</string>
 		<key>6B5D1DE462D521A98972DF70F1147E20268C546A</key>
 		<string>https://github.com/obviousjim/ofxTween.git</string>
 		<key>6E5DC8B5F5175D540605B4EE775E96AD16A3FAD1</key>
 		<string>https://github.com/genekogan/ofxLearn.git</string>
 		<key>7E804D925461714118DB355C65BC964B41D94376</key>
 		<string>https://github.com/rezaali/ofxUI.git</string>
-		<key>B3969BEB79E865DCD1C6C3986D5A79091CD6CEB0</key>
-		<string>https://github.com/mohithingorani/MPExplorer_004.git</string>
 		<key>DF8CF2077679A8E9DC1BA352D6E976FCED7DE749</key>
 		<string>https://github.com/Akira-Hayasaka/ofxPSBlend.git</string>
 		<key>E886256A40B8C928A83BC1507FBEE8D8600B8797</key>
@@ -32,35 +32,35 @@
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>1ACD9576A61F2B707BD0FBE307531E445F127D99</key>
-		<string>../../../../../addons/ofxSelfOrganizingMap</string>
-		<key>6B5D1DE462D521A98972DF70F1147E20268C546A</key>
-		<string>../../../../../addons/ofxTween</string>
-		<key>6E5DC8B5F5175D540605B4EE775E96AD16A3FAD1</key>
-		<string>../../../../../addons/ofxLearn</string>
-		<key>7E804D925461714118DB355C65BC964B41D94376</key>
-		<string>../../../../../addons/ofxUI</string>
-		<key>B3969BEB79E865DCD1C6C3986D5A79091CD6CEB0</key>
+		<string>../../../addons/ofxSelfOrganizingMap</string>
+		<key>5B9A4AB127E2ED3C90A0007758EAD8669569A707</key>
 		<string>../..</string>
+		<key>6B5D1DE462D521A98972DF70F1147E20268C546A</key>
+		<string>../../../addons/ofxTween</string>
+		<key>6E5DC8B5F5175D540605B4EE775E96AD16A3FAD1</key>
+		<string>../../../addons/ofxLearn</string>
+		<key>7E804D925461714118DB355C65BC964B41D94376</key>
+		<string>../../../addons/ofxUI</string>
 		<key>DF8CF2077679A8E9DC1BA352D6E976FCED7DE749</key>
-		<string>../../../../../addons/ofxPSBlend</string>
+		<string>../../../addons/ofxPSBlend</string>
 		<key>E886256A40B8C928A83BC1507FBEE8D8600B8797</key>
-		<string>../../../../../addons/ofxExif</string>
+		<string>../../../addons/ofxExif</string>
 		<key>FC85DE784025A61FFC8EDB74F54F63AE94E3C28A</key>
-		<string>../../../../../addons/ofxSceneManager</string>
+		<string>../../../addons/ofxSceneManager</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/mohithingorani/MPExplorer_004.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>B3969BEB79E865DCD1C6C3986D5A79091CD6CEB0</string>
+	<string>5B9A4AB127E2ED3C90A0007758EAD8669569A707</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>B3969BEB79E865DCD1C6C3986D5A79091CD6CEB0</string>
+			<string>5B9A4AB127E2ED3C90A0007758EAD8669569A707</string>
 			<key>IDESourceControlWCCName</key>
 			<string>MPExplorer_007</string>
 		</dict>

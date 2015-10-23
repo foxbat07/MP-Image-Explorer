@@ -15,6 +15,10 @@
 const int imageThumbWidth = 80;
 const int imageThumbHeight = 80;
 
+const int xMargin  = 100;
+const int yMargin = 50;
+
+
 
 
 class ofApp : public ofBaseApp{
@@ -129,7 +133,7 @@ class ofApp : public ofBaseApp{
     vector <double> globalMinExifData;
     vector <double> globalMaxExifData;
     
-    int somGridSize = 15;
+    int somGridSize = 10;
     int gridSize = 10;
     int textDiff = 18;
     int testImagesDrawn = 200;
@@ -139,6 +143,9 @@ class ofApp : public ofBaseApp{
     //FBO for image grid
     ofFbo fbo;
     ofFbo fbo2;
+    
+    
+
 
     
     

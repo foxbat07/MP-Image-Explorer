@@ -13,7 +13,7 @@ void ofApp::setup(){
     //ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     //ofEnableSmoothing();
     ofSetWindowTitle("User Interface");
-    secondWindow.setup("Image Visualizer", 50, 50, 1440, 900, false);
+    secondWindow.setup("Image Visualizer", 50, 50, 1920, 1200, false);
     
     //setting up labels;
     ExifLabels.push_back("Apertue");
@@ -37,7 +37,7 @@ void ofApp::setup(){
     
     
     //metadata
-    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("10000") + ofToString(metadataExtention);       //for SOM
+    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("1000") + ofToString(metadataExtention);       //for SOM
 
     ofFile metadataFile10000;
     metadataFile10000.open ( metaFilepath10000 ,ofFile::ReadWrite, false ); //for SOM
@@ -105,7 +105,7 @@ void ofApp::setup(){
         //cout << metaBuffer.getText() << endl;
         
         
-        for ( int i = 0 ; i< 10000 ; i ++ )
+        for ( int i = 0 ; i< 1000; i ++ )
         {
             
             string metaLine = metaBuffer100000.getNextLine();
@@ -151,7 +151,7 @@ void ofApp::setup(){
     gui0 = new ofxUISuperCanvas("paramaters");
     gui0->setHeight(500);
     gui0->setWidth(300);
-    gui0->setPosition(0 ,500);
+    gui0->setPosition(1420 -xMargin,yMargin+500 );
 
     gui0->addSpacer();
     gui0->addFPSSlider("FPS SLIDER");
@@ -163,12 +163,12 @@ void ofApp::setup(){
     
     gui1 = new ofxUISuperCanvas("Parallel Coordiantes");
     gui1->setTheme(OFX_UI_THEME_HINGOOO);
-    
-    //gui1->addLabel(" Parallel Coordinates");
-    gui1->setPosition(0, 0);
     gui1->setHeight(500);
     gui1->setWidth(500);
-    //gui0->setWidgetPosition(OFX_UI_WIDGET_POSITION_DOWN);
+
+    //gui1->addLabel(" Parallel Coordinates");
+    gui1->setPosition(1420 -xMargin, yMargin);
+        //gui0->setWidgetPosition(OFX_UI_WIDGET_POSITION_DOWN);
     
    
     gui1->addSpacer(0, 200);
@@ -209,17 +209,14 @@ void ofApp::setup(){
     double maxInstance[4] = { globalMaxExifData[0] , globalMaxExifData[1] , globalMaxExifData[2] , globalMaxExifData[3]  };
     
     som.setFeaturesRange(4, minInstance, maxInstance);
-    som.setInitialLearningRate(0.2);
-    som.setNumIterations(1000);
+    som.setInitialLearningRate(0.07);
+    som.setNumIterations(900);
     som.setMapSize(somGridSize, somGridSize );
     som.setup();
     
     
     // setup SOM ends here
-    
-    
-    
-    
+   
     
 }
 
@@ -255,14 +252,16 @@ void ofApp::update(){
     //update FBO
     
     fbo2.begin();
-    ofClear(255,255,255);
+    
+    //ofClear(255,255,255);
+    ofBackground(192 ,40 );
     for (int i = 0; i < somGridSize; i++) {
         for (int j = 0; j < somGridSize; j++) {
             
             double * exifData = som.getMapAt(i,j);
             ofSetColor(ofColor::blue);
             ofDrawBitmapString( ofToString( exifData[0] ), i * imageThumbWidth , j * imageThumbHeight + textDiff );
-            ofSetColor(ofColor::grey);
+            ofSetColor(ofColor::yellowGreen);
             ofDrawBitmapString(ofToString( exifData[1] )  , i * imageThumbWidth , j * imageThumbHeight + 2* textDiff );
             ofSetColor(ofColor::green);
             ofDrawBitmapString(ofToString( exifData[2] ) , i * imageThumbWidth , j * imageThumbHeight + 3* textDiff );
@@ -308,7 +307,7 @@ void ofApp::draw(){
     
     ofBackground(0);
     
-    fbo.draw(500,0);
+    fbo.draw(xMargin,yMargin );
     
     //ofBackgroundGradient(ofColor::black, ofColor::grey);
     //ofBackground(red, green, blue);
@@ -340,7 +339,7 @@ void ofApp::draw(){
     secondWindow.begin();
     ofBackground(0);
     cam.begin();
-    ofRotateY(ofGetFrameNum());
+    //ofRotateY(ofGetFrameNum());
     
     ofEnableDepthTest();
     for (int i = 0; i < testImagesDrawn ; i++)
@@ -356,6 +355,7 @@ void ofApp::draw(){
                     ofEnableDepthTest();
                         
                     ofTranslate(imageVector[i].exifData[0] * 50 -900 , imageVector[i].exifData[2] * 10 - 1500 ,imageVector[i].exifData[3] * 400 );
+                    //ofTranslate(100* ofNoise(ofGetFrameNum()),100* ofNoise(ofGetFrameNum()),100*  ofNoise(ofGetFrameNum()) );
                         
                     //ofTranslate(imageVector[i].exifData[0] * 50 -900 , imageVector[i].exifData[1] * 3 - 1500 ,imageVector[i].exifData[3] * 400 );
 
@@ -401,7 +401,8 @@ void ofApp::draw(){
     
     
     ofPushMatrix();
-    fbo2.draw(100, 100);
+    
+    fbo2.draw(secondWindow.getWidth()  - fbo2.getWidth()- xMargin, yMargin);
     ofPopMatrix();
     
     secondWindow.end();
@@ -409,8 +410,10 @@ void ofApp::draw(){
     
     //glEnable(GL_DEPTH_TEST);
     
-    // creating parallel coordiantes
     
+    // creating parallel coordiantes
+    ofPushMatrix();
+    ofTranslate(1420 -xMargin, yMargin);
     int xOffset = 56;
     int yOffset = 22;
     ofSetLineWidth(1);
@@ -447,8 +450,7 @@ void ofApp::draw(){
                     ofLine(setX1, setY1, setX2, setY2);
                     
                 }
-                // edn of inner line draw
-            
+                // end of inner line draw
             
                 }
             }
@@ -457,6 +459,10 @@ void ofApp::draw(){
             
         }// end of drawing lines
     
+    
+    ofPopMatrix();
+    
+    //end of parallel coordiantes
     
 // end of draw
 }
@@ -691,6 +697,8 @@ void ofApp::findSOMMinMaxVectorGlobal(void)
                 
             }
         }
+        
+        globalMaxExifData[4]= 0.05;
 
 
     }
