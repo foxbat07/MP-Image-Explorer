@@ -16,7 +16,7 @@
 const int imageThumbWidth = 100;
 const int imageThumbHeight = 100;
 
-const int gridSize = 8;
+const int gridSize = 13;
 
 // currently 800
 

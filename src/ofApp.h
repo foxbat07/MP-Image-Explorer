@@ -8,8 +8,8 @@
 #include "ofxSelfOrganizingMap.h"
 
 
-#define NUMPOINTS 1000
-#define NUMCLUSTERS 20
+#define NUMPOINTS 5000
+#define NUMCLUSTERS 10
 #define gridSide 100;
 
 const int imageThumbWidth = 80;
@@ -45,11 +45,22 @@ class ofApp : public ofBaseApp{
     
     
         void draw3Dgrid();
+        void drawSecondWindow(void);
+        void updateSelections( int selectedImageNumber );
+        void updateGridFbo();
+        void drawFullImage(int selectedImageNumber);
+        void updateImages();
+        void writeSelectedImages(string clientName);
+        void createSuperImage();
+        void drawParallelCoordinates();
+        void drawSOM();
+    void trainClusters();
     
     
-        //string folderName = "mirflickr";
-        //string imageBaseName = "im";
-        //string imageExtension = ".jpg";
+    
+        string folderName = "mirflickr";
+        string imageBaseName = "im";
+        string imageExtension = ".jpg";
         
         string metadataFolder = "metadata";
         string tagName = "tagwords";
@@ -59,7 +70,9 @@ class ofApp : public ofBaseApp{
         string thumbnailFolder = "thumb";
         string thumbnailName = "im";
         string thumbnailExtention = ".png";
-        
+    
+    
+                
         string numberOfImages = ofToString(NUMPOINTS);
         int noImages = NUMPOINTS;        // change both beacuse i am a dummy
         bool isClusterAssigned = false;
@@ -68,7 +81,8 @@ class ofApp : public ofBaseApp{
         vector <ImageDataClass> imageVector;
         int numClusters;
         int numPoints;
-        
+        vector <int> selectedImages;
+    
         ofxLearnKMeansThreaded clusterer;
         vector<double> instances[NUMPOINTS];
         vector<int> clusters;
@@ -82,6 +96,15 @@ class ofApp : public ofBaseApp{
     
         ofxSelfOrganizingMap som ;
     
+        // check for mouse
+        bool mouseInsideGrid = false;
+        int selectedImageNumber = 0;
+        ofImage selectedFullImage;
+        float imageSet = 0 ;
+        string outputFileName = "defaultName";
+        bool drawParallelCoordiantes = false;
+    
+
     
     
     
@@ -96,14 +119,15 @@ class ofApp : public ofBaseApp{
     ofxUISuperCanvas *gui0;
     ofxUISuperCanvas *gui1;
     
+    ofxUISuperCanvas *gui2;
+    
+    
     
    
     bool drawPadding;
     
     float min = 0 ;
     float max = NUMCLUSTERS-1;
-    
-    
     
     vector <double> minExifData;
     vector <double> maxExifData;
@@ -118,13 +142,10 @@ class ofApp : public ofBaseApp{
     vector <string> ExifLabels ;
     
     //vector<float> ISOList { 50,100,200,400,500,640,800,1600,3200,6400,12800,25600} ;
-    
     //vector<float> ShutterList = { 0.000125, 0.00025 , 0.0005 , 0.001 , 0.002 , 0.004 , 0.005 , 0.1 , 1 , 2, 3, 50 } ;// limit it
     
     //vector< float > ApertureList  { 0.95, 1,1.2,1.4, 1.6 , 1.8 , 2.0, 2.2 , 2.5 , 2.8 , 3.5 , 4.2, 4.8, 5.6, 6.3,7.1 , 8.0 , 9.0 ,11.0 , 13.0 , 16.0 } ;
-    
-    
-    
+     
     vector < vector<double> > somExifData;
     
     float red,green, blue;
@@ -133,8 +154,8 @@ class ofApp : public ofBaseApp{
     vector <double> globalMinExifData;
     vector <double> globalMaxExifData;
     
-    int somGridSize = 10;
-    int gridSize = 10;
+    int somGridSize = 13;
+    int gridSize = 13;
     int textDiff = 18;
     int testImagesDrawn = 200;
     
@@ -144,17 +165,4 @@ class ofApp : public ofBaseApp{
     ofFbo fbo;
     ofFbo fbo2;
     
-    
-
-
-    
-    
-    
-    
-    
-
-    
-    
-    
-		
 };
