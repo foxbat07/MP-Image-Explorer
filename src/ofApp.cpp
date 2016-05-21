@@ -1,5 +1,8 @@
 #include "ofApp.h"
 
+#include <algorithm>
+
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     
@@ -17,11 +20,22 @@ void ofApp::setup(){
     ExifLabels.push_back("Exposure");
     //////////////////
     
+    image0.loadImage( "im1.jpg" );
+    image1.loadImage( "im2.jpg" );
+    
     globalMinExifData.assign(5,1000);
     globalMaxExifData.assign(5,0);
     
     fbo.allocate(gridSize * imageThumbWidth, gridSize* imageThumbHeight, GL_RGBA );
     fbo2.allocate(somGridSize * imageThumbWidth, somGridSize* imageThumbHeight, GL_RGBA );
+    superImage.allocate( ofGetWidth(), ofGetHeight() , GL_RGBA);
+    
+    superImage.begin();
+    ofBackgroundGradient( ofColor( 255 ), ofColor( 0 ) );
+    image0.draw(20, 0);
+    superImage.end();
+
+
 
     
     //open up two files for meta and tags
@@ -36,8 +50,8 @@ void ofApp::setup(){
 
     ofFile metadataFile10000;
     metadataFile10000.open ( metaFilepath10000 ,ofFile::ReadWrite, false ); //for SOM
-    cout<<metaFilepath<<endl;
-    cout<<metaFilepath10000<<endl;
+    //cout<<metaFilepath<<endl;
+    //cout<<metaFilepath10000<<endl;
     
     ////
     
@@ -88,9 +102,14 @@ void ofApp::setup(){
 
         }// end of data loading
         
+    
 
     }//end of if file
-
+    
+    
+    //reshuffle vectors always
+    
+    std::random_shuffle(imageVector.begin(), imageVector.end());
  
     
     //lets load data for 10000 file now
@@ -100,7 +119,7 @@ void ofApp::setup(){
         //cout << metaBuffer.getText() << endl;
         
         
-        for ( int i = 0 ; i< 1000; i ++ )
+        for ( int i = 0 ; i< noImages; i ++ )
         {
             
             string metaLine = metaBuffer100000.getNextLine();
@@ -144,10 +163,13 @@ void ofApp::setup(){
     // ofxUI
     
     drawPadding = false;
-    gui0 = new ofxUISuperCanvas("paramaters");
+    gui0 = new ofxUISuperCanvas("Paramaters");
+    gui0->addSpacer();
     gui0->setHeight(500);
     gui0->setWidth(300);
-    gui0->setPosition(ofGetWidth() - 500 - xMargin, yMargin + 550 );
+    gui0->setPosition(ofGetWidth() - 300 - xMargin, yMargin + 550 );
+    gui0->addLabel("User Study: ");
+    gui0->addLabel("Image Selection & Visualization ");
 
     gui0->addSpacer();
     gui0->addFPSSlider("FPS SLIDER");
@@ -157,10 +179,10 @@ void ofApp::setup(){
     gui0->addSpacer();
     gui0->addLabel("OUTPUT");
     gui0->addTextInput("File Name", outputFileName)->setAutoClear(false);
-    gui0->addButton("Create Data File", 1, 80, 30);
-    gui0->addLabel("Selected:" + ofToString(selectedImages.size() )  );
-    
+    gui0->addLabelButton("Create Data File", 1 );
+    //gui0->addLabel("Selected:" + ofToString(selectedImages.size() )  );
     gui0->addSpacer();
+    gui0->addLabelToggle("TOGGLE VIEW", true);
     
     
     
@@ -175,10 +197,11 @@ void ofApp::setup(){
     
     gui2 = new ofxUISuperCanvas("Next Image Set");
     //gui2->setTheme(OFX_UI_THEME_HINGOOO);
-    gui2->addLabel("NEXT SET", OFX_UI_FONT_SMALL);
+    //gui2->addLabel("NEXT SET", OFX_UI_FONT_SMALL);
     gui2->setHeight(imageThumbHeight * gridSize);
     gui2->setWidth(100);
-    gui2->addButton("Next Image", 1, 92 ,gridSize * imageThumbHeight - 45);
+    //gui2->addButton("Next Image", 1, 92 ,gridSize * imageThumbHeight - 45);
+    gui2->addImageButton("Next Image", "arrowImage1.png", 1,92,  gridSize * imageThumbHeight - 45 );
     gui2->setPosition( xMargin + gridSize * imageThumbWidth + 10, yMargin );
     
 
@@ -242,7 +265,7 @@ void ofApp::setup(){
     
     
 
-    
+    superImageShader.load( "shaderVert.c", "shaderFrag.c" );
    
     
 }
@@ -253,8 +276,8 @@ void ofApp::update(){
         //update SOM
     int frameNum = ofGetFrameNum();
     // double instance[4] = { somExifData[frameNum][0] ,  somExifData[frameNum][1] ,  somExifData[frameNum][2],  somExifData[frameNum][3] };
-    if(frameNum%60 == 0)
-        updateGridFbo();    //update every second or so
+    if(frameNum%120 == 0)
+        updateGridFbo();    //update every two seconds
     
     if( frameNum < 10 &&  somExifData[frameNum].size() == 4  )
     {
@@ -271,7 +294,6 @@ void ofApp::update(){
     // end of SOM
     
     }
-    
     
     //updateGridFbo();
     
@@ -293,23 +315,29 @@ void ofApp::draw(){
     
     //ofPushMatrix();
     
+    if (toggleview ==true)
+        {
+        ofBackground(255);
+        ofSetColor(ofColor::blueSteel);
+        ofDrawBitmapString(   ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
+        ofSetColor(ofColor::white);
+        fbo.draw(xMargin,yMargin );
+        drawFullImage(actualNumber);
+        
+        if(drawParallelCoordiantes)
+            gui2->setVisible(true);
+            drawParallelCoordinates();
+            
+        }
+    else
+    {
+        
+        gui2->toggleVisible();
+        drawSuperImage();
+        
+        
+    }
     
-    ofBackground(255);
-    
-    
-    ofSetColor(ofColor::blueSteel);
-    
-    ofDrawBitmapString(   ofToString(mouseInsideGrid) + "   "+ ofToString(selectedImageNumber) +" "+ofToString(imageSet) + " " +ofToString(selectedImages) , 20, 20);
-   
-    ofSetColor(ofColor::white);
-    
-    
-    fbo.draw(xMargin,yMargin );
-    
-    drawFullImage(selectedImageNumber);
-    
-       if(drawParallelCoordiantes)
-        drawParallelCoordinates();
     
 // end of draw
 }
@@ -362,9 +390,11 @@ void ofApp::mouseMoved(int x, int y ){
         mouseInsideGrid = true;
         int xLevel = ( x - xMargin ) / imageThumbWidth;
         int yLevel = ( y - yMargin ) / imageThumbHeight;
-        selectedImageNumber  = yLevel  + xLevel * gridSize + imageSet * gridSize * gridSize;
+        selectedImageNumber  = yLevel  + xLevel * gridSize + imageSet * gridSize * gridSize;  /// change algo here
         
-        int actualNumber = imageVector[selectedImageNumber].imageNumber;
+        
+        
+        actualNumber = imageVector[selectedImageNumber].imageNumber;
         
         //cout<<sin<<" "<<imageVector[sin].imageNumber<<endl ;
     }
@@ -394,7 +424,9 @@ void ofApp::mouseReleased(int x, int y, int button){
     
     if ( mouseInsideGrid)
     {
-    updateSelections(selectedImageNumber);
+    updateSelections(actualNumber);
+        
+        
     updateGridFbo();
     }
     
@@ -423,14 +455,14 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     
     if(name == "Create Data File")
     {
-        ofxUIButton *button = (ofxUIButton *) e.widget;
+        ofxUILabelButton *button = (ofxUILabelButton *) e.widget;
         cout << "value: " << button->getValue() << endl;
         writeSelectedImages(outputFileName);
         
     }
     else if(name == "Next Image")
     {
-        ofxUIButton *button = (ofxUIButton *) e.widget;
+        ofxUIImageButton *button = (ofxUIImageButton *) e.widget;
         cout << "value: " << button->getValue() << endl;
         if(button->getValue()){
             updateImages();
@@ -457,6 +489,12 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         cout << outputFileName << endl;
     }
 
+    else if(name == "TOGGLE VIEW")
+    {
+        ofxUIToggle *toggle = (ofxUIToggle *) e.widget;
+        cout << "value: " << toggle->getValue() << endl;
+        toggleview = !toggleview;
+    }
     
 
 
@@ -658,25 +696,31 @@ void ofApp::drawSecondWindow(void)
 
 //fix
 
-void ofApp::updateSelections( int selectedImageNumber )
+void ofApp::updateSelections( int actualImageNumber )
 {
-    if ( imageVector[selectedImageNumber].isImageSelected == false )
+    if ( imageVector[actualImageNumber].isImageSelected == false )
     {
-        imageVector[selectedImageNumber].isImageSelected = true;
+        imageVector[actualImageNumber].isImageSelected = true;
         // add it to the picked images vector
-        selectedImages.push_back(selectedImageNumber);
-        cout<< selectedImages.size() <<endl;
+        selectedImages.push_back(actualImageNumber);
+        cout<<"number of slected images: " <<selectedImages.size() <<endl;
+        
+        cout<< "actual number selected:  "<< actualImageNumber << "  selected number: "<< selectedImageNumber  <<endl;
+        
+        
+        
+        
         
         
     }
-    else if ( imageVector[selectedImageNumber].isImageSelected == true)
+    else if ( imageVector[actualImageNumber].isImageSelected == true)
     {
         
-        imageVector[selectedImageNumber].isImageSelected = false;
+        imageVector[actualImageNumber].isImageSelected = false;
         
         for ( int i = 0 ; i < selectedImages.size() ; i ++ )
         {
-            if ( selectedImageNumber == selectedImages[i] )
+            if ( actualImageNumber == selectedImages[i] )
             {
                 selectedImages.erase(selectedImages.begin() + i );
                 
@@ -691,14 +735,17 @@ void ofApp::updateSelections( int selectedImageNumber )
 //
 void ofApp::updateGridFbo()
 {
-    cout<<endl<<"updating FBO"<<endl;
+    //cout<<endl<<"updating FBO"<<endl;
     
     fbo.begin();
     ofClear(255,255,255, 0 );
     int imagesDisplayed = gridSize * gridSize;
     int startNumber = imageSet * imagesDisplayed;
     
-    cout<<"images displayed: "<<imagesDisplayed<<"start Number: "<<startNumber;
+    //cout<<"images displayed: "<<imagesDisplayed<<"start Number: "<<startNumber;
+    
+    
+    // create more white
     
     //for (int i = startNumber ; i < startNumber + imagesDisplayed  ; i++)
     for (int i = 0 ; i < imagesDisplayed  ; i++)
@@ -707,7 +754,7 @@ void ofApp::updateGridFbo()
         //imageThumbs[i].draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight );
         int iReal = i + startNumber;
         
-        imageVector[iReal].thumbImage.draw(i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight);
+        imageVector[iReal].thumbImage.draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight , imageThumbWidth, imageThumbHeight );
         
         if( imageVector[iReal].isImageSelected == true  )
         {
@@ -718,21 +765,6 @@ void ofApp::updateGridFbo()
             ofSetColor( ofColor::white );
             
         }
-        
-        
-        
-        if( imageVector[iReal].isImageHover == true  )
-        {
-            ofSetColor( ofColor::blue,255);
-            ofNoFill();
-            ofSetLineWidth(4);
-            ofRect( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight, imageThumbWidth, imageThumbHeight );
-            ofSetColor( ofColor::white );
-            imageVector[iReal].isImageHover = false ;
-
-            
-        }
-        
         
     }
     fbo.end();
@@ -763,7 +795,13 @@ void ofApp::drawFullImage(int selectedImageNumber)
 void ofApp::updateImages(void)
 {
     
-        imageSet+=1;
+    
+        if ( imageSet <  ( NUMPOINTS / ( gridSize*gridSize ) )  - 1 )
+            imageSet+=1;
+
+        else
+            imageSet=0;
+    
         cout<<imageSet <<"imageSet updated"<<endl;
         
         updateGridFbo();
@@ -790,12 +828,23 @@ void ofApp::writeSelectedImages(string clientName)
     //        file << s->rotate << " ";
     //        file << s->r << " " << s->g << " " << s->b << " " << s->brightness;
     
+    createSuperImage();
+    
 }
 
 
 void ofApp::createSuperImage()
 {
-
+    // create super image by layering data
+    //FBO: super Image
+    for ( int i = 0 ; i < selectedImages.size(); i++)
+    {
+            
+        
+        
+    }
+    
+    
 }
 
 
@@ -921,3 +970,37 @@ void ofApp::trainClusters()
 
     
 }
+
+
+void ofApp::drawSuperImage()
+{
+    
+    //show created fbo with the new super image
+    
+    
+    
+    
+    float time = ofGetElapsedTimef();
+    
+    //superImageShader.setUniform1f( "iterator", iterator );
+    
+    superImageShader.begin(); //Enable the shader
+    
+    //cout<<"shader called"<<endl;
+    superImageShader.setUniform1f("time", time );
+    superImageShader.setUniform2f("resolution", ofGetWindowWidth(), ofGetWindowHeight() );
+    superImageShader.setUniform2f("mouse", ofGetMouseX(),ofGetMouseY() );
+
+    superImageShader.setUniformTexture("texture0", image0.getTextureReference(), 1);
+    superImageShader.setUniformTexture("texture1", image1.getTextureReference(), 2);
+    
+    //superImage.draw(0,0);
+    
+    //Draw fbo image
+    superImageShader.end(); //Disable the shader
+ 
+    
+}
+
+
+

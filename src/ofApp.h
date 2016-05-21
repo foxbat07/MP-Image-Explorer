@@ -8,15 +8,20 @@
 #include "ofxSelfOrganizingMap.h"
 
 
-#define NUMPOINTS 5000
+#define NUMPOINTS 1000
 #define NUMCLUSTERS 10
-#define gridSide 100;
+#define gridSide 115;
 
-const int imageThumbWidth = 80;
-const int imageThumbHeight = 80;
+const int imageThumbWidth = 115;
+const int imageThumbHeight = 115;
 
 const int xMargin  = 100;
 const int yMargin = 50;
+
+const int somGridSize = 9;
+const int gridSize = 9;
+const int textDiff = 18;
+const int testImagesDrawn = 200;
 
 
 
@@ -54,7 +59,9 @@ class ofApp : public ofBaseApp{
         void createSuperImage();
         void drawParallelCoordinates();
         void drawSOM();
-    void trainClusters();
+        void trainClusters();
+        void drawSuperImage();
+
     
     
     
@@ -103,8 +110,10 @@ class ofApp : public ofBaseApp{
         float imageSet = 0 ;
         string outputFileName = "defaultName";
         bool drawParallelCoordiantes = false;
+        bool toggleview = true;
+        //int fileLimit = 400;
     
-
+        int actualNumber = 0;
     
     
     
@@ -154,15 +163,24 @@ class ofApp : public ofBaseApp{
     vector <double> globalMinExifData;
     vector <double> globalMaxExifData;
     
-    int somGridSize = 13;
-    int gridSize = 13;
-    int textDiff = 18;
-    int testImagesDrawn = 200;
     
     
     
     //FBO for image grid
     ofFbo fbo;
     ofFbo fbo2;
+    
+    //fbo for superimage
+    ofFbo superImage;
+    
+    
+    ofImage image0;
+    ofImage image1;
+    //ofImage image2;
+    ofShader superImageShader; //Shader
+    
+    
+
+    
     
 };
