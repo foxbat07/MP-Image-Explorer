@@ -51,7 +51,7 @@ class ofApp : public ofBaseApp{
     
         void draw3Dgrid();
         void drawSecondWindow(void);
-        void updateSelections( int selectedImageNumber );
+        void updateSelections(int actualNumber , int selectedImageNumber );
         void updateGridFbo();
         void drawFullImage(int selectedImageNumber);
         void updateImages();
@@ -61,6 +61,10 @@ class ofApp : public ofBaseApp{
         void drawSOM();
         void trainClusters();
         void drawSuperImage();
+    
+        void drawSeletedImages();
+    
+    
 
     
     
@@ -86,6 +90,8 @@ class ofApp : public ofBaseApp{
 
     
         vector <ImageDataClass> imageVector;
+        vector <ImageDataClass> selectedImageVector;
+    
         int numClusters;
         int numPoints;
         vector <int> selectedImages;
@@ -99,8 +105,6 @@ class ofApp : public ofBaseApp{
         ofColor colors[NUMCLUSTERS];
         ofEasyCam cam;
         ofxSecondWindow secondWindow;
-    
-    
         ofxSelfOrganizingMap som ;
     
         // check for mouse
@@ -114,6 +118,10 @@ class ofApp : public ofBaseApp{
         //int fileLimit = 400;
     
         int actualNumber = 0;
+    
+        bool reduceExifLimits0 = false;
+        bool reduceExifLimits1 = false;
+    
     
     
     
@@ -169,6 +177,8 @@ class ofApp : public ofBaseApp{
     //FBO for image grid
     ofFbo fbo;
     ofFbo fbo2;
+    ofFbo fbo3;
+    
     
     //fbo for superimage
     ofFbo superImage;
@@ -180,7 +190,7 @@ class ofApp : public ofBaseApp{
     ofShader superImageShader; //Shader
     
     
-
+    
     
     
 };

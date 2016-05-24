@@ -53,7 +53,12 @@ public:
     bool isImageSelected;
     bool isImageHover;
     
-    void setThumbImage(string imagePath);
+    void setThumbImage(string thumbPath);
+    void setFullImage(string imagePath);
+    void loadFullImage();
+    void clearFullImage();
+
+    
     void initialize( int i );
     void setExif( vector <string> exifInfo );
     void setTags( vector <string>  tags );

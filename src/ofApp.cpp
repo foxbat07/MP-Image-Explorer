@@ -28,6 +28,10 @@ void ofApp::setup(){
     
     fbo.allocate(gridSize * imageThumbWidth, gridSize* imageThumbHeight, GL_RGBA );
     fbo2.allocate(somGridSize * imageThumbWidth, somGridSize* imageThumbHeight, GL_RGBA );
+    fbo3.allocate(gridSize * imageThumbWidth, gridSize* imageThumbHeight, GL_RGBA );
+
+    
+    
     superImage.allocate( ofGetWidth(), ofGetHeight() , GL_RGBA);
     
     superImage.begin();
@@ -39,6 +43,8 @@ void ofApp::setup(){
 
     
     //open up two files for meta and tags
+    //5000 one right now
+    
     
     string metaFilepath = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString(numberOfImages) + ofToString(metadataExtention);
     
@@ -46,7 +52,7 @@ void ofApp::setup(){
     
     
     //metadata
-    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("1000") + ofToString(metadataExtention);       //for SOM
+    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("10000") + ofToString(metadataExtention);       //for SOM
 
     ofFile metadataFile10000;
     metadataFile10000.open ( metaFilepath10000 ,ofFile::ReadWrite, false ); //for SOM
@@ -81,7 +87,8 @@ void ofApp::setup(){
             string tagLine = tagBuffer.getNextLine();
             string metaLine = metaBuffer.getNextLine();
             
-            string imagePath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
+            string thumbPath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
+            string imagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString(i+1) + ofToString(imageExtension);  //just the tag name is different
             
             
             
@@ -95,7 +102,8 @@ void ofApp::setup(){
             ImageDataClass tempDataClass;
             tempDataClass.setExif(metaExif);
             tempDataClass.setTags(tagWords);
-            tempDataClass.setThumbImage(imagePath);
+            tempDataClass.setThumbImage(thumbPath);
+            tempDataClass.setFullImage(imagePath);
             tempDataClass.setBooleanFlags();
             
             imageVector.push_back(tempDataClass);
@@ -163,7 +171,7 @@ void ofApp::setup(){
     // ofxUI
     
     drawPadding = false;
-    gui0 = new ofxUISuperCanvas("Paramaters");
+    gui0 = new ofxUISuperCanvas("Mohit Hingorani");
     gui0->addSpacer();
     gui0->setHeight(500);
     gui0->setWidth(300);
@@ -290,21 +298,12 @@ void ofApp::update(){
     som.updateMap(instance);
     
     cout<<"som called: "<<frameNum << endl;
-        
+    
     // end of SOM
     
     }
     
     //updateGridFbo();
-    
-    
-    
-    
-    
-    
-    
-
-    
 
 }
 
@@ -314,29 +313,86 @@ void ofApp::update(){
 void ofApp::draw(){
     
     //ofPushMatrix();
-    
+    // main view
     if (toggleview ==true)
         {
         ofBackground(255);
         ofSetColor(ofColor::blueSteel);
-        ofDrawBitmapString(   ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
+            
+        ofDrawBitmapString( " RL0: " +  ofToString(reduceExifLimits0)+" RL1: " +ofToString(reduceExifLimits1) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
         ofSetColor(ofColor::white);
         fbo.draw(xMargin,yMargin );
-        drawFullImage(actualNumber);
+        
+       
+            
+            
+        //choose hover image
+        imageVector.at(selectedImageNumber).loadFullImage();
+        imageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - imageVector.at(selectedImageNumber).fullImage.width , yMargin , imageVector.at(selectedImageNumber).fullImage.width , imageVector.at(selectedImageNumber).fullImage.height );
+        imageVector.at(selectedImageNumber).clearFullImage();
+        
+            
+        if(drawParallelCoordiantes)
+        {
+            gui1->setVisible(true);
+            drawParallelCoordinates();
+        }
+        else
+            gui1->setVisible(false);
+        }
+    
+    // selection view
+    else
+        {
+        gui2->toggleVisible();
+        drawSeletedImages();
+        fbo3.draw(xMargin, yMargin);
+        drawParallelCoordiantes = true;
         
         if(drawParallelCoordiantes)
-            gui2->setVisible(true);
+        {
+            gui1->setVisible(true);
             drawParallelCoordinates();
+        }
+        else
+        {
+            gui1->setVisible(false);
+        }
+            
+            
+        ofDrawBitmapString( " RL0: " +  ofToString(reduceExifLimits0)+" RL1: " +ofToString(reduceExifLimits1) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
+            ofSetColor(ofColor::white);
+            
+            // draw exif + big image
+            
+            
+            
+        if (selectedImageNumber < selectedImageVector.size())
+                {
+                //choose hover image
+                selectedImageVector.at(selectedImageNumber).loadFullImage();
+                selectedImageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - selectedImageVector.at(selectedImageNumber).fullImage.width , yMargin , selectedImageVector.at(selectedImageNumber).fullImage.width , selectedImageVector.at(selectedImageNumber).fullImage.height );
+                selectedImageVector.at(selectedImageNumber).clearFullImage();
+                    
+                    for ( int i = 0 ; i<  4 ; i ++ )
+                    {
+                        ofSetColor(ofColor::red);
+                        ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 1000 + yMargin + i * 20 );
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 1000 + yMargin + i * 20 );
+                        ofSetColor(ofColor::white);
+
+                    }
+                
+                
+                }
             
         }
-    else
-    {
-        
-        gui2->toggleVisible();
-        drawSuperImage();
         
         
-    }
+        
+        //drawSuperImage();
+        
+
     
     
 // end of draw
@@ -349,7 +405,7 @@ void ofApp::keyPressed(int key){
     
     switch (key)
     {
-     case '/':
+        case '/':
         {
             gui0->toggleVisible();
             break;
@@ -364,6 +420,25 @@ void ofApp::keyPressed(int key){
             break;
             
         }
+        case '[':
+        {
+            reduceExifLimits0 = !reduceExifLimits0;
+            findMinMaxVector();
+            break;
+            
+        }
+            
+
+        case ']':
+        {
+            reduceExifLimits1 = !reduceExifLimits1;
+            findMinMaxVector();
+            
+            break;
+            
+        }
+            
+
            
         default:
             break;
@@ -384,24 +459,54 @@ void ofApp::keyReleased(int key){
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
     
+    if ( toggleview ==true )            // only for image selection
+    {
+        if ( x > xMargin && y > yMargin &&  x <  ( xMargin + gridSize * imageThumbWidth ) &&  y < ( yMargin + gridSize * imageThumbHeight ) )
+        {
+            mouseInsideGrid = true;
+            int xLevel = ( x - xMargin ) / imageThumbWidth;
+            int yLevel = ( y - yMargin ) / imageThumbHeight;
+            selectedImageNumber  = yLevel  + xLevel * gridSize + imageSet * gridSize * gridSize;  /// change algo here
+            actualNumber = imageVector[selectedImageNumber].imageNumber;
+            
+            
+            
+            //cout<<sin<<" "<<imageVector[sin].imageNumber<<endl ;
+        }
+        else
+        {
+            mouseInsideGrid = false;
+        }
+        
+    }
+    else{
+        
+        // selection view
+        if ( x > xMargin && y > yMargin &&  x <  ( xMargin + gridSize * imageThumbWidth ) &&  y < ( yMargin + gridSize * imageThumbHeight ) )
+        {
+            mouseInsideGrid = true;
+            int xLevel = ( x - xMargin ) / imageThumbWidth;
+            int yLevel = ( y - yMargin ) / imageThumbHeight;
+            selectedImageNumber = 0;
+            selectedImageNumber  = yLevel  + xLevel * gridSize ;  /// change algo here
+            
+            if ( selectedImageNumber < selectedImageVector.size() )
+            {
+                actualNumber = selectedImageVector[selectedImageNumber].imageNumber;
+            }
+            else
+            {
+                //actualNumber = selectedImageVector[0].imageNumber;
+                selectedImageNumber = 0;
+                
+            }
+            
+
+   
+        }
     
-    if ( x > xMargin && y > yMargin &&  x <  ( xMargin + gridSize * imageThumbWidth ) &&  y < ( yMargin + gridSize * imageThumbHeight ) )
-    {
-        mouseInsideGrid = true;
-        int xLevel = ( x - xMargin ) / imageThumbWidth;
-        int yLevel = ( y - yMargin ) / imageThumbHeight;
-        selectedImageNumber  = yLevel  + xLevel * gridSize + imageSet * gridSize * gridSize;  /// change algo here
-        
-        
-        
-        actualNumber = imageVector[selectedImageNumber].imageNumber;
-        
-        //cout<<sin<<" "<<imageVector[sin].imageNumber<<endl ;
     }
-    else
-    {
-        mouseInsideGrid = false;
-    }
+    
     
 //    imageVector[selectedImageNumber].isImageHover = true;
 //    updateGridFbo();
@@ -422,11 +527,14 @@ void ofApp::mousePressed(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
     
-    if ( mouseInsideGrid)
+    
+    
+    if (toggleview && mouseInsideGrid)
     {
-    updateSelections(actualNumber);
-        
-        
+    updateSelections(actualNumber, selectedImageNumber);
+    selectedImageVector.push_back(imageVector.at(selectedImageNumber));
+
+    
     updateGridFbo();
     }
     
@@ -577,6 +685,34 @@ void ofApp::findMinMaxVector(void)
     //minExifRange.assign ( minExifData.begin() , minExifData.end() ) ;
     //maxExifRange.assign ( maxExifData.begin() , maxExifData.end() ) ;
     
+    
+    
+    //reduced limits
+    if (reduceExifLimits0)
+    {
+        maxExifData[0] = 32;
+        maxExifData[1] = 3200;
+        
+        maxExifData[2] = 200;
+        
+        maxExifData[3] = 1.0;
+        
+    }
+    
+    if (reduceExifLimits1)
+    {
+        maxExifData[0] = 32;
+        maxExifData[1] = 3200;
+        
+        maxExifData[2] = 200;
+        
+        maxExifData[3] = 0.2;
+        
+    }
+    
+    minExifRange.clear();
+    maxExifRange.clear();
+    
     for ( int  i = 0 ; i< minExifData.size() ; i++)
     {
         
@@ -585,7 +721,8 @@ void ofApp::findMinMaxVector(void)
         
     }
     
-    //maxExifData[3] = 5.0;
+    
+    
     
     
     
@@ -696,21 +833,18 @@ void ofApp::drawSecondWindow(void)
 
 //fix
 
-void ofApp::updateSelections( int actualImageNumber )
+void ofApp::updateSelections( int actualImageNumber  , int selectedImageNumber )
 {
-    if ( imageVector[actualImageNumber].isImageSelected == false )
+    
+    
+    if ( imageVector[selectedImageNumber].isImageSelected == false )
     {
-        imageVector[actualImageNumber].isImageSelected = true;
+        imageVector[selectedImageNumber].isImageSelected = true;
         // add it to the picked images vector
         selectedImages.push_back(actualImageNumber);
         cout<<"number of slected images: " <<selectedImages.size() <<endl;
         
         cout<< "actual number selected:  "<< actualImageNumber << "  selected number: "<< selectedImageNumber  <<endl;
-        
-        
-        
-        
-        
         
     }
     else if ( imageVector[actualImageNumber].isImageSelected == true)
@@ -728,6 +862,8 @@ void ofApp::updateSelections( int actualImageNumber )
         }
         
     }
+    
+    
 }
 
 
@@ -775,12 +911,12 @@ void ofApp::updateGridFbo()
 
 //wrong image being dislayed due to different numbers
 
-void ofApp::drawFullImage(int selectedImageNumber)
+void ofApp::drawFullImage(int selectedNumber)
 {
     
     //create selected image
     ofPushMatrix();
-    string selectedFullImagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString( selectedImageNumber+ 1) + ofToString(imageExtension);        // fix original image issue
+    string selectedFullImagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString( selectedNumber + 1 ) + ofToString(imageExtension);        // fix original image issue
     //selectedFullImagePath = imageVector[selectedImageNumber].imagePath;
     
     selectedFullImage.loadImage(selectedFullImagePath);
@@ -858,46 +994,87 @@ void ofApp::drawParallelCoordinates()
     ofTranslate(ofGetWidth() -500 -xMargin, yMargin + 500);
     int xOffset = 56;
     int yOffset = 22;
-    ofSetLineWidth(1);
-    for ( int i = 0 ; i< NUMPOINTS ; i ++ )
+    
+    // replace this i with selection vectors actual image Numbers?
+    
+    for ( int i = 0 ; i< selectedImages.size() ; i ++ )
     {
-        if ( imageVector[i].clusterNumber >= min && imageVector[i].clusterNumber <=max )
-        {
-            
-            if( imageVector[i].exifData[1] >= minExifRange[1] &&  imageVector[i].exifData[1] <= maxExifRange[1] && imageVector[i].exifData[0] >= minExifRange[0] &&  imageVector[i].exifData[0] <= maxExifRange[0]    )
+        
+            if( selectedImageVector[i].exifData[1] >= minExifRange[1] &&  selectedImageVector[i].exifData[1] <= maxExifRange[1] && selectedImageVector[i].exifData[0] >= minExifRange[0] &&  selectedImageVector[i].exifData[0] <= maxExifRange[0]    )
             {
-                if( imageVector[i].exifData[1] >= minExifRange[2] &&  imageVector[i].exifData[1] <= maxExifRange[2] && imageVector[i].exifData[3] >= minExifRange[3] &&  imageVector[i].exifData[3] <= maxExifRange[3] )
+                if( selectedImageVector[i].exifData[2] >= minExifRange[2] &&  selectedImageVector[i].exifData[2] <= maxExifRange[2] && selectedImageVector[i].exifData[3] >= minExifRange[3] &&  selectedImageVector[i].exifData[3] <= maxExifRange[3] )
                 {
                     
-                    
+                    ofSetLineWidth(1);
+                    selectedImageVector[i].isImageDrawn =true;
                     // begin of line draw
                     for ( int j = 0 ; j < 4 ; j ++ )
                     {
-                        ofSetColor( colors[clusters[i]] , 128 );
+                        ofSetColor( ofColor::blue , 255 );
                         int setX  = xOffset + j * 112 ;
-                        int setY  = 400+ yOffset - ( imageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
+                        int setY  = 400+ yOffset - ( selectedImageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
                         ofLine(setX, setY, setX+60, setY);
                         
                     }
                     
                     for ( int j = 0 ; j < 3 ; j ++ )
                     {
-                        ofSetColor( colors[clusters[i]] , 128 );
+                        ofSetColor( ofColor::blue , 255 );
                         int setX1  = xOffset + j * 112 + 60;
-                        int setY1  = 400 + yOffset - ( imageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
+                        int setY1  = 400 + yOffset - ( selectedImageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
                         
                         int setX2  = xOffset + (j+1) * 112 ;
-                        int setY2  = 400 + yOffset - ( imageVector[i].exifData[j+1] - minExifData[j+1]) / ( maxExifData[j+1] - minExifData[j+1] ) * 400 ;
+                        int setY2  = 400 + yOffset - ( selectedImageVector[i].exifData[j+1] - minExifData[j+1]) / ( maxExifData[j+1] - minExifData[j+1] ) * 400 ;
                         
                         ofLine(setX1, setY1, setX2, setY2);
                         
                     }
+                    
                     // end of inner line draw
+                    ofSetColor(ofColor::white);
+                    
+                    //////////////////draw selected Line highlight ///////////////////
+                     if (selectedImageNumber < selectedImageVector.size())
+                     {
+                            ofSetLineWidth(3);
+                            selectedImageVector[i].isImageDrawn =true;
+                            // begin of line draw
+                            for ( int j = 0 ; j < 4 ; j ++ )
+                            {
+                                ofSetColor( ofColor::red , 255 );
+                                int setX  = xOffset + j * 112 ;
+                                int setY  = 400+ yOffset - ( selectedImageVector[selectedImageNumber].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
+                                ofLine(setX, setY, setX+60, setY);
+                                
+                            }
+                            
+                            for ( int j = 0 ; j < 3 ; j ++ )
+                            {
+                                ofSetColor( ofColor::red , 255 );
+                                int setX1  = xOffset + j * 112 + 60;
+                                int setY1  = 400 + yOffset - ( selectedImageVector[selectedImageNumber].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
+                                
+                                int setX2  = xOffset + (j+1) * 112 ;
+                                int setY2  = 400 + yOffset - ( selectedImageVector[selectedImageNumber].exifData[j+1] - minExifData[j+1]) / ( maxExifData[j+1] - minExifData[j+1] ) * 400 ;
+                                
+                                ofLine(setX1, setY1, setX2, setY2);
+                                
+                            }
+                         
+                     }
+                    
+
+                    ////////////////// ////////////////// ////////////////// //////////////////
+                    
+                    
                     
                 }
-            }
-        }
+            
         
+            }
+        
+        else
+            selectedImageVector[i].isImageDrawn = false;
         
     }// end of drawing lines
     
@@ -1001,6 +1178,42 @@ void ofApp::drawSuperImage()
  
     
 }
+
+
+
+void ofApp::drawSeletedImages()
+{
+    
+    //cout<<"image vector size " <<imageVector.size()<< endl;
+    //cout<<"selected Image Size:"<<selectedImageVector.size()<< endl;
+    
+    fbo3.begin();
+    
+    ofClear(255,255,255, 0 );
+    if(selectedImageVector.size()!=0)
+        {
+        for (int i = 0 ; i < selectedImageVector.size()    ; i++)
+            {
+                //imageThumbs[i].draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight );
+        //        try {
+        //            //cout<<" selectedImages[i]: "<< selectedImages[i] <<" imageVector[selectedImages[i]]:  "<< imageVector[selectedImages[i]].imageNumber<<endl;
+        //            //cout<<" selectedImages[i]: "<< selectedImages[i] << endl;
+                
+        //
+            if ( selectedImageVector[i].isImageDrawn == true )
+                 selectedImageVector[i].thumbImage.draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight, imageThumbWidth, imageThumbHeight );
+            }
+    
+        }
+        
+    fbo3.end();
+    
+    
+   // fbo3.draw(xMargin, yMargin);
+}
+
+
+
 
 
 

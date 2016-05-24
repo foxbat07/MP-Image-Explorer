@@ -48,11 +48,38 @@ void ImageDataClass::setTags( vector <string>  tags )
 }
 
 
-void ImageDataClass::setThumbImage(string imagePath)
+void ImageDataClass::setThumbImage(string thumbPath)
+{
+    this->thumbPath = thumbPath;
+    this->thumbImage.loadImage( this->thumbPath);
+    
+}
+
+void ImageDataClass::setFullImage(string imagePath)
 {
     this->imagePath = imagePath;
-    this->thumbImage.loadImage( this->imagePath);
+    //this->fullImage.loadImage( this->imagePath);
+    
 }
+
+
+
+
+void ImageDataClass::loadFullImage()
+{
+    this->fullImage.loadImage( this->imagePath);
+    
+    
+    
+}
+
+void ImageDataClass::clearFullImage()
+{
+    this->fullImage.clear();
+    
+}
+
+
 
 
 void ImageDataClass::setBooleanFlags()
