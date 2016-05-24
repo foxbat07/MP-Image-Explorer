@@ -188,18 +188,25 @@ void ofApp::setup(){
     gui0->addLabel("OUTPUT");
     gui0->addTextInput("File Name", outputFileName)->setAutoClear(false);
     gui0->addLabelButton("Create Data File", 1 );
-    //gui0->addLabel("Selected:" + ofToString(selectedImages.size() )  );
+    gui0->addLabelButton("Clear All", 1 );
+    
     gui0->addSpacer();
     gui0->addLabelToggle("TOGGLE VIEW", true);
     
     
     
     
-    gui1 = new ofxUISuperCanvas("Parallel Coordiantes");
+    
+    
+    gui1 = new ofxUISuperCanvas("       Parallel Coordiantes");
     gui1->setTheme(OFX_UI_THEME_HINGOOO);
     gui1->setHeight(500);
     gui1->setWidth(500);
     gui1->toggleVisible();
+    gui1->setPosition(ofGetWidth() - 500 -xMargin, yMargin + 600);
+    gui1->addSpacer(0, 200);
+    gui1->setWidgetPosition(OFX_UI_WIDGET_POSITION_RIGHT);
+
     
     
     
@@ -212,21 +219,6 @@ void ofApp::setup(){
     gui2->addImageButton("Next Image", "arrowImage1.png", 1,92,  gridSize * imageThumbHeight - 45 );
     gui2->setPosition( xMargin + gridSize * imageThumbWidth + 10, yMargin );
     
-
-    
-    
-    //gui1->addLabel(" Parallel Coordinates");
-    gui1->setPosition(ofGetWidth() - 500 -xMargin, yMargin + 500);
-        //gui0->setWidgetPosition(OFX_UI_WIDGET_POSITION_DOWN);
-    
-    gui1->addSpacer(0, 200);
-    
-    gui1->setWidgetPosition(OFX_UI_WIDGET_POSITION_RIGHT);
-    //gui1->addVerticalRangeSlider( ExifLabels[0] , ofToFloat(ofToString(minExifData[0])) ,  ofToFloat(ofToString(maxExifData[0])) , &minExifRange[0]  , &maxExifRange[0] );
-
-    green = 200;
-    
-    //gui0->addVerticalRangeSlider("x", 0, 255, &red, &green , 50 ,200);
 
     
     for ( int  i = 0 ; i < 4 ; i ++ )
@@ -330,8 +322,12 @@ void ofApp::draw(){
         imageVector.at(selectedImageNumber).loadFullImage();
         imageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - imageVector.at(selectedImageNumber).fullImage.width , yMargin , imageVector.at(selectedImageNumber).fullImage.width , imageVector.at(selectedImageNumber).fullImage.height );
         imageVector.at(selectedImageNumber).clearFullImage();
-        
             
+        
+        gui0->setPosition( ofGetWidth() -xMargin - 300 , yMargin + 550 );
+        gui2->setVisible(true);
+            
+        drawParallelCoordiantes = false;
         if(drawParallelCoordiantes)
         {
             gui1->setVisible(true);
@@ -358,9 +354,10 @@ void ofApp::draw(){
         {
             gui1->setVisible(false);
         }
-            
-            
-        ofDrawBitmapString( " RL0: " +  ofToString(reduceExifLimits0)+" RL1: " +ofToString(reduceExifLimits1) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
+            gui0->setPosition( ofGetWidth() -xMargin - 350  , yMargin );
+         
+        ofSetColor(ofColor::blue);
+        ofDrawBitmapString( " RL0: " +  ofToString(reduceExifLimits0)+" RL1: " +ofToString(reduceExifLimits1) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages.size()) , xMargin, 20);
             ofSetColor(ofColor::white);
             
             // draw exif + big image
@@ -371,14 +368,14 @@ void ofApp::draw(){
                 {
                 //choose hover image
                 selectedImageVector.at(selectedImageNumber).loadFullImage();
-                selectedImageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - selectedImageVector.at(selectedImageNumber).fullImage.width , yMargin , selectedImageVector.at(selectedImageNumber).fullImage.width , selectedImageVector.at(selectedImageNumber).fullImage.height );
+                selectedImageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - selectedImageVector.at(selectedImageNumber).fullImage.width - 500 , yMargin , selectedImageVector.at(selectedImageNumber).fullImage.width , selectedImageVector.at(selectedImageNumber).fullImage.height );
                 selectedImageVector.at(selectedImageNumber).clearFullImage();
                     
                     for ( int i = 0 ; i<  4 ; i ++ )
                     {
                         ofSetColor(ofColor::red);
-                        ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 1000 + yMargin + i * 20 );
-                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 1000 + yMargin + i * 20 );
+                        ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 640 + yMargin + i * 20 );
                         ofSetColor(ofColor::white);
 
                     }
@@ -498,7 +495,6 @@ void ofApp::mouseMoved(int x, int y ){
             {
                 //actualNumber = selectedImageVector[0].imageNumber;
                 selectedImageNumber = 0;
-                
             }
             
 
@@ -509,7 +505,7 @@ void ofApp::mouseMoved(int x, int y ){
     
     
 //    imageVector[selectedImageNumber].isImageHover = true;
-//    updateGridFbo();
+    updateGridFbo();
     
     
 }
@@ -533,8 +529,6 @@ void ofApp::mouseReleased(int x, int y, int button){
     {
     updateSelections(actualNumber, selectedImageNumber);
     selectedImageVector.push_back(imageVector.at(selectedImageNumber));
-
-    
     updateGridFbo();
     }
     
@@ -602,6 +596,12 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         ofxUIToggle *toggle = (ofxUIToggle *) e.widget;
         cout << "value: " << toggle->getValue() << endl;
         toggleview = !toggleview;
+    }
+    
+    else if(name == "Clear All")
+    {
+        clearAll();
+        
     }
     
 
@@ -847,10 +847,10 @@ void ofApp::updateSelections( int actualImageNumber  , int selectedImageNumber )
         cout<< "actual number selected:  "<< actualImageNumber << "  selected number: "<< selectedImageNumber  <<endl;
         
     }
-    else if ( imageVector[actualImageNumber].isImageSelected == true)
+    else if ( imageVector[selectedImageNumber].isImageSelected == true)
     {
         
-        imageVector[actualImageNumber].isImageSelected = false;
+        imageVector[selectedImageNumber].isImageSelected = false;
         
         for ( int i = 0 ; i < selectedImages.size() ; i ++ )
         {
@@ -991,7 +991,7 @@ void ofApp::drawParallelCoordinates()
     
     // creating parallel coordiantes
     ofPushMatrix();
-    ofTranslate(ofGetWidth() -500 -xMargin, yMargin + 500);
+    ofTranslate(ofGetWidth() -500 -xMargin, yMargin + 600);
     int xOffset = 56;
     int yOffset = 22;
     
@@ -1210,8 +1210,25 @@ void ofApp::drawSeletedImages()
     
     
    // fbo3.draw(xMargin, yMargin);
+
 }
 
+
+void ofApp::clearAll()
+{
+    std::random_shuffle(imageVector.begin(), imageVector.end());
+    
+    
+    for ( int i = 0 ; i< imageVector.size() ; i++)
+    {
+        imageVector[selectedImageNumber].isImageSelected = false;
+    }
+    
+    
+    selectedImageVector.clear();
+    
+ 
+}
 
 
 

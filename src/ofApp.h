@@ -64,6 +64,8 @@ class ofApp : public ofBaseApp{
     
         void drawSeletedImages();
     
+        void clearAll();
+    
     
 
     
