@@ -107,7 +107,7 @@ class ofApp : public ofBaseApp{
         ofColor colors[NUMCLUSTERS];
         ofEasyCam cam;
         ofxSecondWindow secondWindow;
-        ofxSelfOrganizingMap som ;
+        //ofxSelfOrganizingMap som ;
     
         // check for mouse
         bool mouseInsideGrid = false;

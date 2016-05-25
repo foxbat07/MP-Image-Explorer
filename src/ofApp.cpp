@@ -6,10 +6,10 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    //ofSetVerticalSync( true );
+    ofSetVerticalSync( true );
     ofSetFrameRate(60);
     //ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    //ofEnableSmoothing();
+    ofEnableSmoothing();
     ofSetWindowTitle("User Interface");
     //secondWindow.setup("Image Visualizer", 50, 50, 1920, 1200, false);
     cout<< "Welcome to Mohit's user study "<< endl ;
@@ -32,13 +32,13 @@ void ofApp::setup(){
 
     
     
-    superImage.allocate( ofGetWidth(), ofGetHeight() , GL_RGBA);
-    
-    superImage.begin();
-    ofBackgroundGradient( ofColor( 255 ), ofColor( 0 ) );
-    image0.draw(20, 0);
-    superImage.end();
-
+//    superImage.allocate( ofGetWidth(), ofGetHeight() , GL_RGBA);
+//    
+//    superImage.begin();
+//    ofBackgroundGradient( ofColor( 255 ), ofColor( 0 ) );
+//    image0.draw(20, 0);
+//    superImage.end();
+//
 
 
     
@@ -89,6 +89,7 @@ void ofApp::setup(){
             
             string thumbPath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
             string imagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString(i+1) + ofToString(imageExtension);  //just the tag name is different
+            // +1 because the first line contains the fields
             
             
             
@@ -113,6 +114,11 @@ void ofApp::setup(){
     
 
     }//end of if file
+    
+    
+    
+    
+    
     
     
     //reshuffle vectors always
@@ -181,9 +187,9 @@ void ofApp::setup(){
 
     gui0->addSpacer();
     gui0->addFPSSlider("FPS SLIDER");
-    gui0->addSpacer();
-    gui0->addLabel("Cluster Slider");
-    gui0->addRangeSlider("RANGE", 0.0, NUMCLUSTERS , &min , &max);
+//    gui0->addSpacer();
+//    gui0->addLabel("Cluster Slider");
+//    gui0->addRangeSlider("RANGE", 0.0, NUMCLUSTERS , &min , &max);
     gui0->addSpacer();
     gui0->addLabel("OUTPUT");
     gui0->addTextInput("File Name", outputFileName)->setAutoClear(false);
@@ -242,20 +248,20 @@ void ofApp::setup(){
     
     
 
-    clusterer.beginTraining(this, &ofApp::callbackTrainingDone);
+    //clusterer.beginTraining(this, &ofApp::callbackTrainingDone);
     
     
     // get SOm stuff ready
     
-    findSOMMinMaxVectorGlobal();  // set up SOM stuff
-    double minInstance[4] = { globalMinExifData[0] , globalMinExifData[1] , globalMinExifData[2] , globalMinExifData[3] };
-    double maxInstance[4] = { globalMaxExifData[0] , globalMaxExifData[1] , globalMaxExifData[2] , globalMaxExifData[3] };
-    
-    som.setFeaturesRange(4, minInstance, maxInstance);
-    som.setInitialLearningRate(0.07);
-    som.setNumIterations(900);
-    som.setMapSize(somGridSize, somGridSize );
-    som.setup();
+//    findSOMMinMaxVectorGlobal();  // set up SOM stuff
+//    double minInstance[4] = { globalMinExifData[0] , globalMinExifData[1] , globalMinExifData[2] , globalMinExifData[3] };
+//    double maxInstance[4] = { globalMaxExifData[0] , globalMaxExifData[1] , globalMaxExifData[2] , globalMaxExifData[3] };
+//    
+//    som.setFeaturesRange(4, minInstance, maxInstance);
+//    som.setInitialLearningRate(0.07);
+//    som.setNumIterations(900);
+//    som.setMapSize(somGridSize, somGridSize );
+//    som.setup();
     
     
     // setup SOM ends here
@@ -265,8 +271,8 @@ void ofApp::setup(){
     
     
 
-    superImageShader.load( "shaderVert.c", "shaderFrag.c" );
-   
+//    superImageShader.load( "shaderVert.c", "shaderFrag.c" );
+//   
     
 }
 
@@ -274,27 +280,27 @@ void ofApp::setup(){
 void ofApp::update(){
     
         //update SOM
-    int frameNum = ofGetFrameNum();
-    // double instance[4] = { somExifData[frameNum][0] ,  somExifData[frameNum][1] ,  somExifData[frameNum][2],  somExifData[frameNum][3] };
-    if(frameNum%120 == 0)
-        updateGridFbo();    //update every two seconds
-    
-    if( frameNum < 10 &&  somExifData[frameNum].size() == 4  )
-    {
-        
-    double instance[4] = { somExifData[frameNum][0] ,  somExifData[frameNum][1] ,  somExifData[frameNum][2],  somExifData[frameNum][3] };
-
-    
-    
-    //  dMinAperture, dMinShutterSpeed, dMinFocalLength, dMinAperture
-    som.updateMap(instance);
-    
-    cout<<"som called: "<<frameNum << endl;
-    
-    // end of SOM
-    
-    }
-    
+//    int frameNum = ofGetFrameNum();
+//    // double instance[4] = { somExifData[frameNum][0] ,  somExifData[frameNum][1] ,  somExifData[frameNum][2],  somExifData[frameNum][3] };
+//    if(frameNum%120 == 0)
+//        updateGridFbo();    //update every two seconds
+//    
+//    if( frameNum < 10 &&  somExifData[frameNum].size() == 4  )
+//    {
+//        
+//    double instance[4] = { somExifData[frameNum][0] ,  somExifData[frameNum][1] ,  somExifData[frameNum][2],  somExifData[frameNum][3] };
+//
+//    
+//    
+//    //  dMinAperture, dMinShutterSpeed, dMinFocalLength, dMinAperture
+//    som.updateMap(instance);
+//    
+//    cout<<"som called: "<<frameNum << endl;
+//    
+//    // end of SOM
+//    
+//    }
+//    
     //updateGridFbo();
 
 }
@@ -770,8 +776,7 @@ void ofApp::drawSecondWindow(void)
     ofEnableDepthTest();
     for (int i = 0; i < testImagesDrawn ; i++)
     {
-        if ( imageVector[i].clusterNumber >= min && imageVector[i].clusterNumber <=max )
-        {
+       
             if( imageVector[i].exifData[1] >= minExifRange[1] &&  imageVector[i].exifData[1] <= maxExifRange[1] && imageVector[i].exifData[0] >= minExifRange[0] &&  imageVector[i].exifData[0] <= maxExifRange[0]    )
             {
                 if( imageVector[i].exifData[1] >= minExifRange[2] &&  imageVector[i].exifData[1] <= maxExifRange[2] && imageVector[i].exifData[3] >= minExifRange[3] &&  imageVector[i].exifData[3] <= maxExifRange[3] )    // add cluster as well
@@ -803,8 +808,7 @@ void ofApp::drawSecondWindow(void)
                     ofPopMatrix();
                 }
             }
-            
-        }
+        
         
     }
     
@@ -823,10 +827,6 @@ void ofApp::drawSecondWindow(void)
     ofPopMatrix();
     
     secondWindow.end();
-
-    
-    
-    
     
 }
 
@@ -896,7 +896,7 @@ void ofApp::updateGridFbo()
         {
             ofSetColor( ofColor::green,192);
             ofNoFill();
-            ofSetLineWidth(3);
+            ofSetLineWidth(4);
             ofRect( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight , imageThumbWidth, imageThumbHeight );
             ofSetColor( ofColor::white );
             
@@ -1093,57 +1093,57 @@ void ofApp::drawSOM()
 {
     //update FBO
     
-        fbo2.begin();
-    
-        //ofClear(255,255,255);
-        ofBackground(192,40 );
-        for (int i = 0; i < somGridSize; i++) {
-            for (int j = 0; j < somGridSize; j++) {
-    
-                double * exifData = som.getMapAt(i,j);
-                ofSetColor(ofColor::blue);
-                ofDrawBitmapString( ofToString( exifData[0] ), i * imageThumbWidth , j * imageThumbHeight + textDiff );
-                ofSetColor(ofColor::yellowGreen);
-                ofDrawBitmapString(ofToString( exifData[1] )  , i * imageThumbWidth , j * imageThumbHeight + 2* textDiff );
-                ofSetColor(ofColor::green);
-                ofDrawBitmapString(ofToString( exifData[2] ) , i * imageThumbWidth , j * imageThumbHeight + 3* textDiff );
-                ofSetColor(ofColor::red);
-                ofDrawBitmapString(ofToString( exifData[3] ) , i * imageThumbWidth , j * imageThumbHeight + 4* textDiff );
-                ofSetColor(ofColor::white );
-    
-                //imageThumbs[i * gridSize + j ].draw( i * imageThumbWidth , j * imageThumbHeight );
-            }
-            
-        }
-        fbo2.end();
-
+//        fbo2.begin();
+//    
+//        //ofClear(255,255,255);
+//        ofBackground(192,40 );
+//        for (int i = 0; i < somGridSize; i++) {
+//            for (int j = 0; j < somGridSize; j++) {
+//    
+//                double * exifData = som.getMapAt(i,j);
+//                ofSetColor(ofColor::blue);
+//                ofDrawBitmapString( ofToString( exifData[0] ), i * imageThumbWidth , j * imageThumbHeight + textDiff );
+//                ofSetColor(ofColor::yellowGreen);
+//                ofDrawBitmapString(ofToString( exifData[1] )  , i * imageThumbWidth , j * imageThumbHeight + 2* textDiff );
+//                ofSetColor(ofColor::green);
+//                ofDrawBitmapString(ofToString( exifData[2] ) , i * imageThumbWidth , j * imageThumbHeight + 3* textDiff );
+//                ofSetColor(ofColor::red);
+//                ofDrawBitmapString(ofToString( exifData[3] ) , i * imageThumbWidth , j * imageThumbHeight + 4* textDiff );
+//                ofSetColor(ofColor::white );
+//    
+//                //imageThumbs[i * gridSize + j ].draw( i * imageThumbWidth , j * imageThumbHeight );
+//            }
+//            
+//        }
+//        fbo2.end();
+//
     
 }
 
 
 void ofApp::trainClusters()
 {
-    //ofBackgroundGradient(ofColor::black, ofColor::grey);
-    //ofBackground(red, green, blue);
-    
-    if (!clusterer.isTrained()) {
-        ofSetColor(0);
-        ofDrawBitmapString("Please wait... Training clusterer in its own thread! ("+ofToString(ofGetFrameNum())+")", 50, 50);
-        return;
-    }
-    clusters = clusterer.getClusters();
-    
-    if ( clusterer.isTrained() && isClusterAssigned == false )
-    {
-        isClusterAssigned = true;
-        for ( int i = 0 ; i <NUMPOINTS ; i ++ )
-        {
-            imageVector[i].setClusterNumber(clusters[i] );
-            cout<<i <<"  "<< clusters[i] <<endl ;
-        }
-        
-        
-    }
+//    //ofBackgroundGradient(ofColor::black, ofColor::grey);
+//    //ofBackground(red, green, blue);
+//    
+//    if (!clusterer.isTrained()) {
+//        ofSetColor(0);
+//        ofDrawBitmapString("Please wait... Training clusterer in its own thread! ("+ofToString(ofGetFrameNum())+")", 50, 50);
+//        return;
+//    }
+//    clusters = clusterer.getClusters();
+//    
+//    if ( clusterer.isTrained() && isClusterAssigned == false )
+//    {
+//        isClusterAssigned = true;
+//        for ( int i = 0 ; i <NUMPOINTS ; i ++ )
+//        {
+//            imageVector[i].setClusterNumber(clusters[i] );
+//            cout<<i <<"  "<< clusters[i] <<endl ;
+//        }
+//        
+//        
+//    }
 
     
 }
@@ -1157,24 +1157,24 @@ void ofApp::drawSuperImage()
     
     
     
-    float time = ofGetElapsedTimef();
-    
-    //superImageShader.setUniform1f( "iterator", iterator );
-    
-    superImageShader.begin(); //Enable the shader
-    
-    //cout<<"shader called"<<endl;
-    superImageShader.setUniform1f("time", time );
-    superImageShader.setUniform2f("resolution", ofGetWindowWidth(), ofGetWindowHeight() );
-    superImageShader.setUniform2f("mouse", ofGetMouseX(),ofGetMouseY() );
-
-    superImageShader.setUniformTexture("texture0", image0.getTextureReference(), 1);
-    superImageShader.setUniformTexture("texture1", image1.getTextureReference(), 2);
-    
-    //superImage.draw(0,0);
-    
-    //Draw fbo image
-    superImageShader.end(); //Disable the shader
+//    float time = ofGetElapsedTimef();
+//    
+//    //superImageShader.setUniform1f( "iterator", iterator );
+//    
+//    superImageShader.begin(); //Enable the shader
+//    
+//    //cout<<"shader called"<<endl;
+//    superImageShader.setUniform1f("time", time );
+//    superImageShader.setUniform2f("resolution", ofGetWindowWidth(), ofGetWindowHeight() );
+//    superImageShader.setUniform2f("mouse", ofGetMouseX(),ofGetMouseY() );
+//
+//    superImageShader.setUniformTexture("texture0", image0.getTextureReference(), 1);
+//    superImageShader.setUniformTexture("texture1", image1.getTextureReference(), 2);
+//    
+//    //superImage.draw(0,0);
+//    
+//    //Draw fbo image
+//    superImageShader.end(); //Disable the shader
  
     
 }
