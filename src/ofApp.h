@@ -6,6 +6,7 @@
 #include "ofxSecondWindow.h"
 #include "ofxUI.h"
 #include "ofxSelfOrganizingMap.h"
+#include "ofxCsv.h"
 
 
 #define NUMPOINTS 1000
@@ -23,7 +24,7 @@ const int gridSize = 9;
 const int textDiff = 18;
 const int testImagesDrawn = 200;
 
-
+using namespace wng;
 
 
 class ofApp : public ofBaseApp{
@@ -66,8 +67,29 @@ class ofApp : public ofBaseApp{
     
         void clearAll();
     
+        void loadFilesOldWay();
     
+        void loadFilesNewWay();
+    
+    
+        // new files
+    
+        string newFlickrFolder = "newFlickr/";
+        string newTableDataFolder = "tabledata/";
+        string newTableData = "tabledata-2016-";
 
+    
+        string newImages = "Images/";
+        string imageSizeT = "Large Square";
+        string imageSizeM = "Medium";
+        string imageSizeL = "Large";
+    
+        ofxCsv csv;
+        ofxCsv csvRecorder;
+
+        ////
+    
+    
     
     
     

@@ -14,14 +14,13 @@ void ofApp::setup(){
     //secondWindow.setup("Image Visualizer", 50, 50, 1920, 1200, false);
     cout<< "Welcome to Mohit's user study "<< endl ;
     //setting up labels;
-    ExifLabels.push_back("Apertue");
+    ExifLabels.push_back("Aperture");
     ExifLabels.push_back("ISO");
     ExifLabels.push_back("Focal Len");
     ExifLabels.push_back("Exposure");
     //////////////////
     
-    image0.loadImage( "im1.jpg" );
-    image1.loadImage( "im2.jpg" );
+
     
     globalMinExifData.assign(5,1000);
     globalMaxExifData.assign(5,0);
@@ -41,123 +40,18 @@ void ofApp::setup(){
 //
 
 
-    
-    //open up two files for meta and tags
-    //5000 one right now
-    
-    
-    string metaFilepath = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString(numberOfImages) + ofToString(metadataExtention);
-    
-    string tagPath = ofToString(metadataFolder) + "/" + ofToString(tagName) + ofToString(numberOfImages) + ofToString(metadataExtention);  //just the tag name is different
-    
-    
-    //metadata
-    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("10000") + ofToString(metadataExtention);       //for SOM
 
-    ofFile metadataFile10000;
-    metadataFile10000.open ( metaFilepath10000 ,ofFile::ReadWrite, false ); //for SOM
-    //cout<<metaFilepath<<endl;
-    //cout<<metaFilepath10000<<endl;
-    
-    ////
     
     
-    ofFile tagFile;
-    tagFile.open(tagPath, ofFile::ReadWrite, false);
+    loadFilesOldWay();
     
-    ofFile metadataFile;
-    metadataFile.open ( metaFilepath ,ofFile::ReadWrite, false );
-    
-    //got two files yo
-    
-    
-    
-    if ( tagFile.isFile() && metadataFile.isFile() )
-    {
-        ofBuffer tagBuffer = tagFile.readToBuffer();
-        //cout << tagBuffer.getText() << endl;
-        
-        ofBuffer metaBuffer = metadataFile.readToBuffer();
-        //cout << metaBuffer.getText() << endl;
-        
-        
-        for ( int i = 0 ; i< noImages ; i ++ )
-        {
-            
-            string tagLine = tagBuffer.getNextLine();
-            string metaLine = metaBuffer.getNextLine();
-            
-            string thumbPath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
-            string imagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString(i+1) + ofToString(imageExtension);  //just the tag name is different
-            // +1 because the first line contains the fields
-            
-            
-            
-            vector <string> tagWords;
-            tagWords = ofSplitString(tagLine, " ");
-            tagWords.erase(tagWords.begin()); // delete the first number
-            
-            vector <string> metaExif;
-            metaExif = ofSplitString(metaLine, " ");
-            
-            ImageDataClass tempDataClass;
-            tempDataClass.setExif(metaExif);
-            tempDataClass.setTags(tagWords);
-            tempDataClass.setThumbImage(thumbPath);
-            tempDataClass.setFullImage(imagePath);
-            tempDataClass.setBooleanFlags();
-            
-            imageVector.push_back(tempDataClass);
-
-        }// end of data loading
-        
-    
-
-    }//end of if file
-    
-    
-    
-    
-    
-    
+    //loadFilesNewWay();
     
     //reshuffle vectors always
     
     std::random_shuffle(imageVector.begin(), imageVector.end());
  
     
-    //lets load data for 10000 file now
-    if ( metadataFile10000.isFile() )
-    {
-        ofBuffer metaBuffer100000 = metadataFile10000.readToBuffer();
-        //cout << metaBuffer.getText() << endl;
-        
-        
-        for ( int i = 0 ; i< noImages; i ++ )
-        {
-            
-            string metaLine = metaBuffer100000.getNextLine();
-            //cout<<metaLine << endl ;
-            vector <string> metaExif;
-            vector <double> dMetaExif;
-            
-            metaExif = ofSplitString(metaLine, " ");
-            
-            for ( int i = 1 ; i<metaExif.size() ; i++ )
-            {
-                dMetaExif.push_back( ofToDouble (metaExif[i]) ) ;
-                cout<< metaExif[i] <<endl;
-                
-            }
-            
-            somExifData.push_back(dMetaExif);       //pushed back all data
-
-        }// end of data loading
-    }//end of meta file
-    
-    cout<< somExifData.size()<<endl ;
-    
-
     
     //lets cluster the data
     
@@ -204,7 +98,7 @@ void ofApp::setup(){
     
     
     
-    gui1 = new ofxUISuperCanvas("       Parallel Coordiantes");
+    gui1 = new ofxUISuperCanvas("  Parallel Coordiantes");
     gui1->setTheme(OFX_UI_THEME_HINGOOO);
     gui1->setHeight(500);
     gui1->setWidth(500);
@@ -344,7 +238,7 @@ void ofApp::draw(){
         }
     
     // selection view
-    else
+     if (toggleview == false)
         {
         gui2->toggleVisible();
         drawSeletedImages();
@@ -370,7 +264,7 @@ void ofApp::draw(){
             
             
             
-        if (selectedImageNumber < selectedImageVector.size())
+        if (selectedImageNumber < selectedImageVector.size()  )
                 {
                 //choose hover image
                 selectedImageVector.at(selectedImageNumber).loadFullImage();
@@ -383,6 +277,12 @@ void ofApp::draw(){
                         ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
                         ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 640 + yMargin + i * 20 );
                         ofSetColor(ofColor::white);
+                        
+                        ofSetColor(ofColor::red);
+                        //ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin -400  + i * 80, ofGetHeight() -  yMargin  );
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -430  + i * 110, ofGetHeight() -  yMargin  );
+                        ofSetColor(ofColor::white);
+                        
 
                     }
                 
@@ -789,8 +689,7 @@ void ofApp::drawSecondWindow(void)
                     //ofTranslate(100* ofNoise(ofGetFrameNum()),100* ofNoise(ofGetFrameNum()),100*  ofNoise(ofGetFrameNum()) );
                     
                     //ofTranslate(imageVector[i].exifData[0] * 50 -900 , imageVector[i].exifData[1] * 3 - 1500 ,imageVector[i].exifData[3] * 400 );
-                    
-                    
+  
                     
                     
                     ofSetColor( colors[clusters[i]] , 128 );
@@ -1000,11 +899,23 @@ void ofApp::drawParallelCoordinates()
     for ( int i = 0 ; i< selectedImages.size() ; i ++ )
     {
         
-            if( selectedImageVector[i].exifData[1] >= minExifRange[1] &&  selectedImageVector[i].exifData[1] <= maxExifRange[1] && selectedImageVector[i].exifData[0] >= minExifRange[0] &&  selectedImageVector[i].exifData[0] <= maxExifRange[0]    )
+        for ( int j = 0 ; j < 4 ; j++)
+        {
+            for ( int k = 0 ; k < 11 ; k++ )
             {
-                if( selectedImageVector[i].exifData[2] >= minExifRange[2] &&  selectedImageVector[i].exifData[2] <= maxExifRange[2] && selectedImageVector[i].exifData[3] >= minExifRange[3] &&  selectedImageVector[i].exifData[3] <= maxExifRange[3] )
+                ofSetLineWidth(2);
+                ofSetColor( ofColor::gray , 150 );
+                int setX  = xOffset + j * 112 ;
+                int setY  = 400+ yOffset - k * 40 ;
+                ofLine(setX, setY, setX+60, setY);
+
+            }
+            
+        }
+        
+            if( selectedImageVector[i].exifData[1] >= minExifRange[1] &&  selectedImageVector[i].exifData[1] <= maxExifRange[1] && selectedImageVector[i].exifData[0] >= minExifRange[0] &&  selectedImageVector[i].exifData[0] <= maxExifRange[0] && selectedImageVector[i].exifData[2] >= minExifRange[2] &&  selectedImageVector[i].exifData[2] <= maxExifRange[2] && selectedImageVector[i].exifData[3] >= minExifRange[3] &&  selectedImageVector[i].exifData[3] <= maxExifRange[3]    )
                 {
-                    
+                
                     ofSetLineWidth(1);
                     selectedImageVector[i].isImageDrawn =true;
                     // begin of line draw
@@ -1034,7 +945,7 @@ void ofApp::drawParallelCoordinates()
                     ofSetColor(ofColor::white);
                     
                     //////////////////draw selected Line highlight ///////////////////
-                     if (selectedImageNumber < selectedImageVector.size())
+                     if (selectedImageNumber < selectedImageVector.size() && selectedImageVector[i].isImageDrawn == true )
                      {
                             ofSetLineWidth(3);
                             selectedImageVector[i].isImageDrawn =true;
@@ -1066,17 +977,14 @@ void ofApp::drawParallelCoordinates()
 
                     ////////////////// ////////////////// ////////////////// //////////////////
                     
-                    
-                    
-                }
-            
-        
             }
         
         else
             selectedImageVector[i].isImageDrawn = false;
         
     }// end of drawing lines
+    
+    
     
     ofSetColor(ofColor::white);
     ofPopMatrix();
@@ -1230,6 +1138,255 @@ void ofApp::clearAll()
  
 }
 
+
+
+void ofApp::loadFilesOldWay()
+{
+    
+    
+    
+    
+    string metaFilepath = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString(numberOfImages) + ofToString(metadataExtention);
+    
+    string tagPath = ofToString(metadataFolder) + "/" + ofToString(tagName) + ofToString(numberOfImages) + ofToString(metadataExtention);  //just the tag name is different
+    
+    
+    //metadata
+    string metaFilepath10000 = ofToString(metadataFolder) + "/" + ofToString(metadataName) + ofToString("10000") + ofToString(metadataExtention);       //for SOM
+    
+    ofFile metadataFile10000;
+    metadataFile10000.open ( metaFilepath10000 ,ofFile::ReadWrite, false ); //for SOM
+    //cout<<metaFilepath<<endl;
+    //cout<<metaFilepath10000<<endl;
+    
+    ////
+    
+    
+    ofFile tagFile;
+    tagFile.open(tagPath, ofFile::ReadWrite, false);
+    
+    ofFile metadataFile;
+    metadataFile.open ( metaFilepath ,ofFile::ReadWrite, false );
+    
+    //got two files yo
+    
+    
+    
+    if ( tagFile.isFile() && metadataFile.isFile() )
+    {
+        ofBuffer tagBuffer = tagFile.readToBuffer();
+        //cout << tagBuffer.getText() << endl;
+        
+        ofBuffer metaBuffer = metadataFile.readToBuffer();
+        //cout << metaBuffer.getText() << endl;
+        
+        
+        for ( int i = 0 ; i< noImages ; i ++ )
+        {
+            
+            string tagLine = tagBuffer.getNextLine();
+            string metaLine = metaBuffer.getNextLine();
+            
+            string thumbPath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
+            string imagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString(i+1) + ofToString(imageExtension);  //just the tag name is different
+            // +1 because the first line contains the fields
+            
+            
+            
+            vector <string> tagWords;
+            tagWords = ofSplitString(tagLine, " ");
+            tagWords.erase(tagWords.begin()); // delete the first number
+            
+            vector <string> metaExif;
+            metaExif = ofSplitString(metaLine, " ");
+            
+            ImageDataClass tempDataClass;
+            tempDataClass.setExif(metaExif);
+            tempDataClass.setTags(tagWords);
+            tempDataClass.setThumbImage(thumbPath);
+            tempDataClass.setFullImage(imagePath);
+            tempDataClass.setBooleanFlags();
+            
+            imageVector.push_back(tempDataClass);
+            
+        }// end of data loading
+        
+        
+        
+    }//end of if file
+
+    
+    //lets load data for 10000 file now
+    if ( metadataFile10000.isFile() )
+    {
+        ofBuffer metaBuffer100000 = metadataFile10000.readToBuffer();
+        //cout << metaBuffer.getText() << endl;
+        
+        
+        for ( int i = 0 ; i< noImages; i ++ )
+        {
+            
+            string metaLine = metaBuffer100000.getNextLine();
+            //cout<<metaLine << endl ;
+            vector <string> metaExif;
+            vector <double> dMetaExif;
+            
+            metaExif = ofSplitString(metaLine, " ");
+            
+            for ( int i = 1 ; i<metaExif.size() ; i++ )
+            {
+                dMetaExif.push_back( ofToDouble (metaExif[i]) ) ;
+                cout<< metaExif[i] <<endl;
+                
+            }
+            
+            somExifData.push_back(dMetaExif);       //pushed back all data
+            
+        }// end of data loading
+    }//end of meta file
+    
+    cout<< somExifData.size()<<endl ;
+
+    
+    
+}
+
+
+
+
+void ofApp::loadFilesNewWay()
+{
+    
+//    
+//    string newFlickrFolder = "newFlickr/";
+//    string newTableDataFolder = "tabledata/";
+//    string newTableData = "tabledata-2016-";
+//    
+//    
+//    string newImages = "Images/";
+//    string imageSizeT = "Large Square";
+//    string imageSizeM = "Medium";
+//    string imageSizeL = "Large";
+//
+    
+      string DataPath = ofToString(newFlickrFolder) +  ofToString(newTableDataFolder) +ofToString(newTableData) +  "01-01" + ".csv";  //new csv names for all
+      string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + "01/" ;
+      string imagePath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + "01/" ;
+    
+    
+    
+    int dateArray [] = {31,28,31,30,22};
+    int dateArray1 [] = {3,3};
+    
+    
+    for( int j  = 1 ;  j <= 3 ; j++ )
+        {
+            for ( int i = 1 ; i < dateArray1[j] ; j ++ )
+            {
+                
+                // fix ofToString percision
+                
+                
+                // find data
+                //string DataPath = ofToString(newFlickrFolder) +  ofToString(newTableDataFolder) +ofToString(newTableData) +  "01-01" + ".csv";  //new csv names for all
+                string DataPath = ofToString(newFlickrFolder) +  ofToString(newTableDataFolder) +ofToString(newTableData) +  ofToString(j,2,'0') +"-"+ ofToString(i,2,'0') + ".csv";  //new csv names for
+                csv.loadFile(ofToDataPath(DataPath));
+                
+                cout<<DataPath<< endl;
+                
+                for ( int k = 1 ; k < csv.numRows ; k++)
+                {
+                
+                 //   if( csv.data[k][0]!= 0 && csv.data[k][1] != "0" && csv.data[k][2] != "0"  && csv.data[k][3] != "0" && csv.data[k][4] != ofToInt("0") )
+                    {
+                        string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + ofToString(j,2,'0') +"/"+ ofToString(csv.data[k][0])+ ".jpg" ;
+                        string imageMediumPath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + ofToString(j,2,'0') +"/" + ofToString(csv.data[k][0])+ ".jpg";
+                
+                        cout<< thumbNailPath<< endl;
+                        
+                        
+                        // exists(); to see if paths are avaialble
+                        
+                        
+                        
+                    //now go through each line put exif in vector
+                        
+                        string ss = ofToString( csv.data[k][5] );
+                        
+                        vector <string> sss;
+                        sss = ofSplitString(ss , "/");
+                        
+                        
+                        if (sss.size() == 1)
+                        {
+                            csv.data[k][5] = ofToString(sss[0]);
+                        }
+                        
+                        if (sss.size() == 2)
+                        {
+                            double num = ofToDouble( sss[0] );
+                            double den = ofToDouble( sss[1] );
+                            
+                            double s = num/den;
+                            
+                            csv.data[k][5] = ofToString(s);
+                            
+                        }
+                        
+                        
+                    vector <string> metaExif;
+                    for ( int l = 1 ; l < 5 ; l++)
+                        {
+                        cout<< ofToString(metaExif) << endl;
+                            
+                        metaExif.push_back(  ofToString(csv.data[k][l] )  );
+                        }
+                        
+                                               
+                    cout<< ofToString( metaExif )<< endl;
+                        
+                    ImageDataClass tempDataClass;
+                    tempDataClass.setExif(metaExif);
+                    tempDataClass.setThumbImage(thumbNailPath);
+                    tempDataClass.setFullImage(imageMediumPath);
+                    tempDataClass.setBooleanFlags();
+                    
+                    imageVector.push_back(tempDataClass);
+                    
+                    // if data fine then add paths
+                        
+                    }
+                    
+                    
+                    
+                }
+                
+                
+                
+                
+            }
+            
+        }
+    
+    
+    cout << "Print out a specific CSV value" << endl;
+    //cout << csv.data[0][1] << endl;
+
+    
+    //ofFile metadataFile;
+    //metadataFile.open ( metaFilepath ,ofFile::ReadWrite, false );
+  
+   // string thumbPath = ofToString(thumbnailFolder) + "/" + ofToString(thumbnailName) + ofToString(i+1) + ofToString(thumbnailExtention);  //just the tag name is different
+   // string imagePath = ofToString(folderName) + "/" + ofToString(imageBaseName) + ofToString(i+1) + ofToString(imageExtension);  //just the tag name is different
+
+    
+    
+    
+    
+
+    
+    
+}
 
 
 
