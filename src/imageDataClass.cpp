@@ -61,6 +61,12 @@ void ImageDataClass::loadThumbImage()
 }
 
 
+void ImageDataClass::clearThumbImage()
+{
+    this->thumbImage.clear();
+    
+}
+
 
 void ImageDataClass::setFullImage(string imagePath)
 {

@@ -45,6 +45,8 @@ void ofApp::setup(){
     
     //loadFilesOldWay();
     
+    
+    //////////////////////only new way now  ///////////////
     loadFilesNewWay();
     
     //reshuffle vectors always
@@ -85,8 +87,12 @@ void ofApp::setup(){
 //    gui0->addLabel("Cluster Slider");
 //    gui0->addRangeSlider("RANGE", 0.0, NUMCLUSTERS , &min , &max);
     gui0->addSpacer();
-    gui0->addLabel("OUTPUT");
+    gui0->addLabel("OUTPUT ID ( same as survey)");
     gui0->addTextInput("File Name", outputFileName)->setAutoClear(false);
+    
+    gui0->addLabel("Session Number");
+    gui0->addTextInput("Session", sessionName)->setAutoClear(false);
+    
     gui0->addLabelButton("Create Data File", 1 );
     gui0->addLabelButton("Clear All", 1 );
     
@@ -106,10 +112,17 @@ void ofApp::setup(){
     gui1->setPosition(ofGetWidth() - 500 -xMargin, yMargin + 600);
     gui1->addSpacer(0, 200);
     gui1->setWidgetPosition(OFX_UI_WIDGET_POSITION_RIGHT);
+    for ( int  i = 0 ; i < 4 ; i ++ )
+    {
+        gui1->addSpacer(40 , 400);
+        gui1->addRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , &minExifRange[i]  , &maxExifRange[i] , 60, 400 );
+        
+        //gui1->addVerticalRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , minExifRange[i]  , maxExifRange[i], 60 ,400  );
+    }
+    
 
     
-    
-    
+   
     gui2 = new ofxUISuperCanvas("Next Image Set");
     //gui2->setTheme(OFX_UI_THEME_HINGOOO);
     //gui2->addLabel("NEXT SET", OFX_UI_FONT_SMALL);
@@ -120,16 +133,6 @@ void ofApp::setup(){
     gui2->setPosition( xMargin + gridSize * imageThumbWidth + 10, yMargin );
     
 
-    
-    for ( int  i = 0 ; i < 4 ; i ++ )
-    {
-        //gui1->addLabel(ExifLabels[i]);
-        gui1->addSpacer(40 , 400);
-        gui1->addRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , &minExifRange[i]  , &maxExifRange[i] , 60, 400 );
-        
-        //gui1->addVerticalRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , minExifRange[i]  , maxExifRange[i], 60 ,400  );
-    
-    }
     
     //gui0->setWidgetPosition(OFX_UI_WIDGET_POSITION_RIGHT);  // for vertical sliders
     //gui0->setWidgetPosition(OFX_UI_WIDGET_POSITION_DOWN);
@@ -195,7 +198,7 @@ void ofApp::update(){
 //    
 //    }
 //    
-    //updateGridFbo();
+    updateGridFbo();
 
 }
 
@@ -206,12 +209,13 @@ void ofApp::draw(){
     
     //ofPushMatrix();
     // main view
+    ofBackground(200);
     if (toggleview ==true)
         {
-        ofBackground(255);
+        
         ofSetColor(ofColor::blueSteel);
             
-        ofDrawBitmapString( " RL0: " +  ofToString(reduceExifLimits0)+" RL1: " +ofToString(reduceExifLimits1) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " " +ofToString(selectedImages) , xMargin, 20);
+        ofDrawBitmapString( "image Set: "+ ofToString(imageSet) + " mouse grid: " + ofToString(mouseInsideGrid) + "  sn: "+ ofToString(selectedImageNumber)+ " in: "+ ofToString(actualNumber) +" is: "+ofToString(imageSet) + " selected Images " +ofToString(selectedImages.size()) , xMargin, 20);
         ofSetColor(ofColor::white);
         fbo.draw(xMargin,yMargin );
         
@@ -221,7 +225,7 @@ void ofApp::draw(){
         //choose hover image
         imageVector.at(selectedImageNumber).loadFullImage();
         imageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - imageVector.at(selectedImageNumber).fullImage.width , yMargin , imageVector.at(selectedImageNumber).fullImage.width , imageVector.at(selectedImageNumber).fullImage.height );
-        imageVector.at(selectedImageNumber).clearFullImage();
+        //imageVector.at(selectedImageNumber).clearFullImage();
             
         
         gui0->setPosition( ofGetWidth() -xMargin - 300 , yMargin + 550 );
@@ -478,6 +482,32 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
             }
     }
     
+    
+    //gui0->addLabel("Session Number");
+    //gui0->addTextInput("Session", sessionName)->setAutoClear(false);
+    
+    else if(name == "Session")
+    {
+        ofxUITextInput *textinput = (ofxUITextInput *) e.widget;
+        if(textinput->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
+        {
+            cout << "ON ENTER: ";
+        }
+        else if(textinput->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
+        {
+            cout << "ON FOCUS: ";
+        }
+        else if(textinput->getTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
+        {
+            cout << "ON BLUR: ";
+        }
+        sessionName = textinput->getTextString();
+        cout << sessionName << endl;
+    }
+
+    
+    
+    
     else if(name == "File Name")
     {
         ofxUITextInput *textinput = (ofxUITextInput *) e.widget;
@@ -506,7 +536,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     
     else if(name == "Clear All")
     {
-        clearAll();
+       // clearAll();
         
     }
     
@@ -848,12 +878,15 @@ void ofApp::updateImages(void)
 
 void ofApp::writeSelectedImages(string clientName)
 {
-    ofFile file( clientName + ".txt", ofFile::WriteOnly);
+    ofFile file( "output/session"+ ofToString(sessionName)+ "/ " + clientName + ".txt", ofFile::WriteOnly);
     
     for( int i = 0 ; i <  selectedImages.size() ; i++)
     {
        // file << selectedImages[i] <<endl;
         file<< ofToString(selectedImageVector[i].imageNumber,0,11,' ')<< ","<< selectedImageVector[i].dAperture<<","<< selectedImageVector[i].dISOSpeed <<","<< selectedImageVector[i].dFocalLength<<","<< selectedImageVector[i].dShutterSpeed << endl;
+        
+        selectedImageVector[i].loadFullImage();
+        selectedImageVector[i].fullImage.saveImage("output/session"+ ofToString(sessionName)+"/images/" + ofToString(selectedImageVector[i].imageNumber,0,11,' ') + ".jpg" );
         
     }
     
@@ -864,7 +897,7 @@ void ofApp::writeSelectedImages(string clientName)
     //        file << s->rotate << " ";
     //        file << s->r << " " << s->g << " " << s->b << " " << s->brightness;
     
-    createSuperImage();
+    //createSuperImage();
     
 }
 
@@ -974,7 +1007,6 @@ void ofApp::drawParallelCoordinates()
                             }
                          
                      }
-                    
 
                     ////////////////// ////////////////// ////////////////// //////////////////
                     
@@ -1130,11 +1162,17 @@ void ofApp::clearAll()
     
     for ( int i = 0 ; i< imageVector.size() ; i++)
     {
-        imageVector[selectedImageNumber].isImageSelected = false;
+    imageVector[i].isImageSelected = false;
+    //imageVector[i].clearFullImage();
+    //imageVector[i].clearThumbImage();
+        
+
     }
-    
-    
+
     selectedImageVector.clear();
+    
+    updateGridFbo();
+    
     
  
 }
@@ -1275,12 +1313,12 @@ void ofApp::loadFilesNewWay()
       string imagePath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + "01/" ;
     
     int dateArray [] = {31,28,31,30,22};
-    int dateArray1 [] = {5,5,5,5,5};
+    //int dateArray1 [] = {5,5,5,5,5};
     int counter = 0 ;
     
-    for( int j  = 1 ;  j <= 3 ; j++ )
+    for( int j  = 1 ;  j <= 4 ; j++ )
         {
-            for ( int i = 1 ; i < dateArray1[j]; i ++ )
+            for ( int i = 1 ; i < dateArray[j]; i += 10)
             {
                 
                 // fix ofToString percision
@@ -1388,10 +1426,7 @@ void ofApp::loadFilesNewWay()
                                 }
                                 
                             }
-                            
-
-                    
-                    
+                        
                         
                     }
                     

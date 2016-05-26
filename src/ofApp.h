@@ -9,7 +9,7 @@
 #include "ofxCsv.h"
 
 
-#define NUMPOINTS 400
+#define NUMPOINTS 10000
 #define NUMCLUSTERS 10
 #define gridSide 115;
 
@@ -137,6 +137,7 @@ class ofApp : public ofBaseApp{
         ofImage selectedFullImage;
         double imageSet = 0 ;
         string outputFileName = "defaultName";
+        string sessionName = "0";
         bool drawParallelCoordiantes = false;
         bool toggleview = true;
         //int fileLimit = 400;

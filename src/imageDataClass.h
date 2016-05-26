@@ -58,6 +58,7 @@ public:
     void loadFullImage();
     void clearFullImage();
     void loadThumbImage();
+    void clearThumbImage();
 
     
     void initialize( int i );
