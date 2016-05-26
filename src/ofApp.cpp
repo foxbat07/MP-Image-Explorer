@@ -1318,7 +1318,7 @@ void ofApp::loadFilesNewWay()
     
     for( int j  = 1 ;  j <= 4 ; j++ )
         {
-            for ( int i = 1 ; i < dateArray[j]; i += 10)
+            for ( int i = 1 ; i < dateArray[j]; i += 12)
             {
                 
                 // fix ofToString percision
@@ -1340,23 +1340,27 @@ void ofApp::loadFilesNewWay()
                         string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + ofToString(j,2,'0') +"/"+ ofToString(csv.data[k][0])+ ".jpg" ;
                         string imageMediumPath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + ofToString(j,2,'0') +"/" + ofToString(csv.data[k][0])+ ".jpg";
                 
-                        cout<< thumbNailPath<< endl;
+                        //cout<< thumbNailPath<< endl;
                         
                         
                         // exists(); to see if paths are avaialble
                         ofFile thumbFile;
                         bool thumbExists = thumbFile.doesFileExist(thumbNailPath);
-                        cout<< thumbExists << endl;
+                        //cout<< thumbExists << endl;
                         
                         ofFile mediumFile;
                         bool mediumExists = mediumFile.doesFileExist(imageMediumPath);
-                        cout<<mediumExists << endl;
+                        //cout<<mediumExists << endl;
                         
                        // cout<< csv.get
                         
                         if ( thumbExists == true && mediumExists == true )
                             {
                                 //now go through each line put exif in vector
+                                
+                                
+                                // check if image is being repeated based on ID
+                                
                                 
                                 vector <string> metaExif;
                                 for ( int l = 0 ; l < 4 ; l++)          // not shutter speed
@@ -1394,12 +1398,12 @@ void ofApp::loadFilesNewWay()
                                         double den = ofToDouble( sss[1] );
                                         
                                         double s = num/den;
-                                        cout<< s;
+                                        //cout<< s;
                                         metaExif.push_back( ofToString(s) ) ;
                                         
                                     }
                                     
-                                    cout<< ofToString( metaExif )<< endl;
+                                    //cout<< ofToString( metaExif )<< endl;
                                         
                                     
                                     //final check
@@ -1416,7 +1420,7 @@ void ofApp::loadFilesNewWay()
                                                 
                                                 imageVector.push_back(tempDataClass);
                                                 counter++;
-                                                cout<<"counter: " << counter<< endl;
+                                                //cout<<"counter: " << counter<< endl;
                                                 
                                                 // if data fine then add paths
                                         }
