@@ -9,7 +9,7 @@
 #include "ofxCsv.h"
 
 
-#define NUMPOINTS 1000
+#define NUMPOINTS 400
 #define NUMCLUSTERS 10
 #define gridSide 115;
 
@@ -52,9 +52,9 @@ class ofApp : public ofBaseApp{
     
         void draw3Dgrid();
         void drawSecondWindow(void);
-        void updateSelections(int actualNumber , int selectedImageNumber );
+        void updateSelections(double actualNumber , double selectedImageNumber );
         void updateGridFbo();
-        void drawFullImage(int selectedImageNumber);
+        void drawFullImage(double selectedImageNumber);
         void updateImages();
         void writeSelectedImages(string clientName);
         void createSuperImage();
@@ -133,15 +133,15 @@ class ofApp : public ofBaseApp{
     
         // check for mouse
         bool mouseInsideGrid = false;
-        int selectedImageNumber = 0;
+        double selectedImageNumber = 0;
         ofImage selectedFullImage;
-        float imageSet = 0 ;
+        double imageSet = 0 ;
         string outputFileName = "defaultName";
         bool drawParallelCoordiantes = false;
         bool toggleview = true;
         //int fileLimit = 400;
     
-        int actualNumber = 0;
+        double actualNumber = 0;
     
         bool reduceExifLimits0 = false;
         bool reduceExifLimits1 = false;

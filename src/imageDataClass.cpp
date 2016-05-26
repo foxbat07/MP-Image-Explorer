@@ -22,8 +22,8 @@ const int gridSize = 13;
 
  void ImageDataClass::setExif( vector <string> exifInfo )
 {
-    this->imageNumber = ofToInt(exifInfo[0]);
-
+    this->imageNumber = ofToDouble(exifInfo[0]);
+    
     this->dAperture = ofToDouble(exifInfo[1]);
     this->dISOSpeed = ofToDouble(exifInfo[2]);
     this->dFocalLength = ofToDouble(exifInfo[3]);
@@ -51,9 +51,16 @@ void ImageDataClass::setTags( vector <string>  tags )
 void ImageDataClass::setThumbImage(string thumbPath)
 {
     this->thumbPath = thumbPath;
+    
+}
+void ImageDataClass::loadThumbImage()
+{
+    
     this->thumbImage.loadImage( this->thumbPath);
     
 }
+
+
 
 void ImageDataClass::setFullImage(string imagePath)
 {

@@ -43,9 +43,9 @@ void ofApp::setup(){
 
     
     
-    loadFilesOldWay();
+    //loadFilesOldWay();
     
-    //loadFilesNewWay();
+    loadFilesNewWay();
     
     //reshuffle vectors always
     
@@ -411,7 +411,7 @@ void ofApp::mouseMoved(int x, int y ){
     
     
 //    imageVector[selectedImageNumber].isImageHover = true;
-    updateGridFbo();
+    //updateGridFbo();
     
     
 }
@@ -732,7 +732,7 @@ void ofApp::drawSecondWindow(void)
 
 //fix
 
-void ofApp::updateSelections( int actualImageNumber  , int selectedImageNumber )
+void ofApp::updateSelections( double actualImageNumber  , double selectedImageNumber )
 {
     
     
@@ -741,7 +741,7 @@ void ofApp::updateSelections( int actualImageNumber  , int selectedImageNumber )
         imageVector[selectedImageNumber].isImageSelected = true;
         // add it to the picked images vector
         selectedImages.push_back(actualImageNumber);
-        cout<<"number of slected images: " <<selectedImages.size() <<endl;
+        cout<<"number of selected images: " <<selectedImages.size() <<endl;
         
         cout<< "actual number selected:  "<< actualImageNumber << "  selected number: "<< selectedImageNumber  <<endl;
         
@@ -788,9 +788,9 @@ void ofApp::updateGridFbo()
     {
         //imageThumbs[i].draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight );
         int iReal = i + startNumber;
-        
+        imageVector[iReal].loadThumbImage();
         imageVector[iReal].thumbImage.draw( i/gridSize * imageThumbWidth , i % gridSize * imageThumbHeight , imageThumbWidth, imageThumbHeight );
-        
+    
         if( imageVector[iReal].isImageSelected == true  )
         {
             ofSetColor( ofColor::green,192);
@@ -810,7 +810,7 @@ void ofApp::updateGridFbo()
 
 //wrong image being dislayed due to different numbers
 
-void ofApp::drawFullImage(int selectedNumber)
+void ofApp::drawFullImage(double selectedNumber)
 {
     
     //create selected image
@@ -852,7 +852,8 @@ void ofApp::writeSelectedImages(string clientName)
     
     for( int i = 0 ; i <  selectedImages.size() ; i++)
     {
-        file << selectedImages[i] <<endl;
+       // file << selectedImages[i] <<endl;
+        file<< ofToString(selectedImageVector[i].imageNumber,0,11,' ')<< ","<< selectedImageVector[i].dAperture<<","<< selectedImageVector[i].dISOSpeed <<","<< selectedImageVector[i].dFocalLength<<","<< selectedImageVector[i].dShutterSpeed << endl;
         
     }
     
@@ -1273,15 +1274,13 @@ void ofApp::loadFilesNewWay()
       string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + "01/" ;
       string imagePath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + "01/" ;
     
-    
-    
     int dateArray [] = {31,28,31,30,22};
-    int dateArray1 [] = {3,3};
-    
+    int dateArray1 [] = {5,5,5,5,5};
+    int counter = 0 ;
     
     for( int j  = 1 ;  j <= 3 ; j++ )
         {
-            for ( int i = 1 ; i < dateArray1[j] ; j ++ )
+            for ( int i = 1 ; i < dateArray1[j]; i ++ )
             {
                 
                 // fix ofToString percision
@@ -1291,13 +1290,14 @@ void ofApp::loadFilesNewWay()
                 //string DataPath = ofToString(newFlickrFolder) +  ofToString(newTableDataFolder) +ofToString(newTableData) +  "01-01" + ".csv";  //new csv names for all
                 string DataPath = ofToString(newFlickrFolder) +  ofToString(newTableDataFolder) +ofToString(newTableData) +  ofToString(j,2,'0') +"-"+ ofToString(i,2,'0') + ".csv";  //new csv names for
                 csv.loadFile(ofToDataPath(DataPath));
-                
                 cout<<DataPath<< endl;
+                cout<<csv.numRows<< endl;
+                
                 
                 for ( int k = 1 ; k < csv.numRows ; k++)
                 {
                 
-                 //   if( csv.data[k][0]!= 0 && csv.data[k][1] != "0" && csv.data[k][2] != "0"  && csv.data[k][3] != "0" && csv.data[k][4] != ofToInt("0") )
+                 //if( csv.data[k][1] != NULL && csv.data[k][2] != NULL  && csv.data[k][3] != NULL && csv.data[k][4] != NULL && csv.data[k][5] != NULL )
                     {
                         string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + ofToString(j,2,'0') +"/"+ ofToString(csv.data[k][0])+ ".jpg" ;
                         string imageMediumPath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + ofToString(j,2,'0') +"/" + ofToString(csv.data[k][0])+ ".jpg";
@@ -1306,54 +1306,92 @@ void ofApp::loadFilesNewWay()
                         
                         
                         // exists(); to see if paths are avaialble
+                        ofFile thumbFile;
+                        bool thumbExists = thumbFile.doesFileExist(thumbNailPath);
+                        cout<< thumbExists << endl;
                         
+                        ofFile mediumFile;
+                        bool mediumExists = mediumFile.doesFileExist(imageMediumPath);
+                        cout<<mediumExists << endl;
                         
+                       // cout<< csv.get
                         
-                    //now go through each line put exif in vector
-                        
-                        string ss = ofToString( csv.data[k][5] );
-                        
-                        vector <string> sss;
-                        sss = ofSplitString(ss , "/");
-                        
-                        
-                        if (sss.size() == 1)
-                        {
-                            csv.data[k][5] = ofToString(sss[0]);
-                        }
-                        
-                        if (sss.size() == 2)
-                        {
-                            double num = ofToDouble( sss[0] );
-                            double den = ofToDouble( sss[1] );
+                        if ( thumbExists == true && mediumExists == true )
+                            {
+                                //now go through each line put exif in vector
+                                
+                                vector <string> metaExif;
+                                for ( int l = 0 ; l < 4 ; l++)          // not shutter speed
+                                {
+                                    //cout<< ofToString(metaExif) << endl;
+                                    
+                                    string temp = csv.getString(k,l) ;
+                                    
+
+                                    metaExif.push_back(temp);
+                                }
+                                
+                                
+                                
+                                string ss =  csv.getString(k, 4);
+                                
+                                if ( ss != " " )
+                                {
+                                vector <string> sss;
+                                sss = ofSplitString(ss , "/");
+                                //cout<<ofToString(sss)<<endl ;
+                                
+                                if (sss.size() != 0)
+                                    {
+                                        
+                                    if (sss.size() == 1)
+                                    {
+                                        
+                                        metaExif.push_back( ofToString(sss[0]) ) ;
+                                    }
+                                    
+                                    if (sss.size() == 2)
+                                    {
+                                        double num = ofToDouble( sss[0] );
+                                        double den = ofToDouble( sss[1] );
+                                        
+                                        double s = num/den;
+                                        cout<< s;
+                                        metaExif.push_back( ofToString(s) ) ;
+                                        
+                                    }
+                                    
+                                    cout<< ofToString( metaExif )<< endl;
+                                        
+                                    
+                                    //final check
+                                    
+                                    if ( ofToDouble(metaExif[0]) != 0 && ofToDouble(metaExif[1]) != 0 && ofToDouble(metaExif[2]) != 0 &&ofToDouble(metaExif[3]) != 0 && ofToDouble(metaExif[4]) != 0  )
+                                        {
+                                            
+                                       
+                                                ImageDataClass tempDataClass;
+                                                tempDataClass.setExif(metaExif);
+                                                tempDataClass.setThumbImage(thumbNailPath);
+                                                tempDataClass.setFullImage(imageMediumPath);
+                                                tempDataClass.setBooleanFlags();
+                                                
+                                                imageVector.push_back(tempDataClass);
+                                                counter++;
+                                                cout<<"counter: " << counter<< endl;
+                                                
+                                                // if data fine then add paths
+                                        }
+                                        
+                                    
+                                    }
+                                }
+                                
+                            }
                             
-                            double s = num/den;
-                            
-                            csv.data[k][5] = ofToString(s);
-                            
-                        }
-                        
-                        
-                    vector <string> metaExif;
-                    for ( int l = 1 ; l < 5 ; l++)
-                        {
-                        cout<< ofToString(metaExif) << endl;
-                            
-                        metaExif.push_back(  ofToString(csv.data[k][l] )  );
-                        }
-                        
-                                               
-                    cout<< ofToString( metaExif )<< endl;
-                        
-                    ImageDataClass tempDataClass;
-                    tempDataClass.setExif(metaExif);
-                    tempDataClass.setThumbImage(thumbNailPath);
-                    tempDataClass.setFullImage(imageMediumPath);
-                    tempDataClass.setBooleanFlags();
+
                     
-                    imageVector.push_back(tempDataClass);
                     
-                    // if data fine then add paths
                         
                     }
                     
@@ -1369,7 +1407,7 @@ void ofApp::loadFilesNewWay()
         }
     
     
-    cout << "Print out a specific CSV value" << endl;
+    cout << "data entered "<< counter << endl;
     //cout << csv.data[0][1] << endl;
 
     

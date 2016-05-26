@@ -27,8 +27,8 @@ public:
     string imagePath;
     string thumbPath;
     
-    int imageNumber;
-    int localNumber;
+    double imageNumber;
+    double localNumber;
     
     double dFocalLength;    // in mm
     double dISOSpeed;       //in 100s
@@ -57,6 +57,7 @@ public:
     void setFullImage(string imagePath);
     void loadFullImage();
     void clearFullImage();
+    void loadThumbImage();
 
     
     void initialize( int i );
