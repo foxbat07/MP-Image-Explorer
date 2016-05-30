@@ -52,7 +52,9 @@ void ofApp::setup(){
     //reshuffle vectors always
     
     std::random_shuffle(imageVector.begin(), imageVector.end());
- 
+    std::random_shuffle(imageVector.begin(), imageVector.end());
+    std::random_shuffle(imageVector.begin(), imageVector.end());
+    
     
     
     //lets cluster the data
@@ -74,6 +76,7 @@ void ofApp::setup(){
     
     drawPadding = false;
     gui0 = new ofxUISuperCanvas("Mohit Hingorani");
+    //gui0->setTheme(OFX_UI_THEME_MACOSX);
     gui0->addSpacer();
     gui0->setHeight(500);
     gui0->setWidth(300);
@@ -124,7 +127,7 @@ void ofApp::setup(){
     
    
     gui2 = new ofxUISuperCanvas("Next Image Set");
-    //gui2->setTheme(OFX_UI_THEME_HINGOOO);
+    //gui2->setTheme(OFX_UI_THEME_CITRUSBLUE);
     //gui2->addLabel("NEXT SET", OFX_UI_FONT_SMALL);
     gui2->setHeight(imageThumbHeight * gridSize);
     gui2->setWidth(100);
@@ -209,7 +212,7 @@ void ofApp::draw(){
     
     //ofPushMatrix();
     // main view
-    ofBackground(200);
+    ofBackground(192,100);
     if (toggleview ==true)
         {
         
@@ -469,7 +472,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     {
         ofxUILabelButton *button = (ofxUILabelButton *) e.widget;
         cout << "value: " << button->getValue() << endl;
-        writeSelectedImages(outputFileName);
+        if ( button->getValue() == 0 )
+            writeSelectedImages(outputFileName);
         
     }
     else if(name == "Next Image")
@@ -536,7 +540,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     
     else if(name == "Clear All")
     {
-       // clearAll();
+        clearAll();
         
     }
     
@@ -878,24 +882,38 @@ void ofApp::updateImages(void)
 
 void ofApp::writeSelectedImages(string clientName)
 {
+    
+    /// use for show
+//    int randomSession = ofRandom(100);
+//    int randomClientName = ofRandom(100);
+//    
+//    ofFile file( "eoys/session"+ ofToString(randomSession)+ "/ " + ofToString(randomClientName) + ".txt", ofFile::WriteOnly);
+    ///
+    //// use for user study
     ofFile file( "output/session"+ ofToString(sessionName)+ "/ " + clientName + ".txt", ofFile::WriteOnly);
+    
+    
+    
     
     for( int i = 0 ; i <  selectedImages.size() ; i++)
     {
-       // file << selectedImages[i] <<endl;
+      
         file<< ofToString(selectedImageVector[i].imageNumber,0,11,' ')<< ","<< selectedImageVector[i].dAperture<<","<< selectedImageVector[i].dISOSpeed <<","<< selectedImageVector[i].dFocalLength<<","<< selectedImageVector[i].dShutterSpeed << endl;
         
         selectedImageVector[i].loadFullImage();
+        
+        
+        // use for show
+        //selectedImageVector[i].fullImage.saveImage("eoys/session"+ ofToString(randomSession)+"/images/" + ofToString(selectedImageVector[i].imageNumber,0,11,' ') + ".jpg" );
+        
+        // use for user study
         selectedImageVector[i].fullImage.saveImage("output/session"+ ofToString(sessionName)+"/images/" + ofToString(selectedImageVector[i].imageNumber,0,11,' ') + ".jpg" );
+        
         
     }
     
-    cout<< "file created"<<endl ;
-    
-    //        file << s->x << " " << s->y << " ";
-    //        file << s->scale << " " << s->scalex << " " << s->scaley << " ";
-    //        file << s->rotate << " ";
-    //        file << s->r << " " << s->g << " " << s->b << " " << s->brightness;
+    cout<< "file created"<<sessionName<<" "<<clientName<<endl ;
+ 
     
     //createSuperImage();
     
@@ -1157,19 +1175,21 @@ void ofApp::drawSeletedImages()
 
 void ofApp::clearAll()
 {
-    std::random_shuffle(imageVector.begin(), imageVector.end());
     
     
     for ( int i = 0 ; i< imageVector.size() ; i++)
     {
     imageVector[i].isImageSelected = false;
-    //imageVector[i].clearFullImage();
-    //imageVector[i].clearThumbImage();
+    imageVector[i].clearFullImage();
+    imageVector[i].clearThumbImage();
         
 
     }
-
+    std::random_shuffle(imageVector.begin(), imageVector.end());
+    
     selectedImageVector.clear();
+    selectedImages.clear();
+    
     
     updateGridFbo();
     
@@ -1316,9 +1336,9 @@ void ofApp::loadFilesNewWay()
     //int dateArray1 [] = {5,5,5,5,5};
     int counter = 0 ;
     
-    for( int j  = 1 ;  j <= 4 ; j++ )
+    for( int j  = 3 ;  j <= 4 ; j++ )
         {
-            for ( int i = 1 ; i < dateArray[j]; i += 12)
+            for ( int i = 4 ; i < dateArray[j -1 ]; i += 6)     // skip days as we dont need all the data
             {
                 
                 // fix ofToString percision
@@ -1337,95 +1357,130 @@ void ofApp::loadFilesNewWay()
                 
                  //if( csv.data[k][1] != NULL && csv.data[k][2] != NULL  && csv.data[k][3] != NULL && csv.data[k][4] != NULL && csv.data[k][5] != NULL )
                     {
-                        string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + ofToString(j,2,'0') +"/"+ ofToString(csv.data[k][0])+ ".jpg" ;
-                        string imageMediumPath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + ofToString(j,2,'0') +"/" + ofToString(csv.data[k][0])+ ".jpg";
+                        
                 
                         //cout<< thumbNailPath<< endl;
                         
                         
-                        // exists(); to see if paths are avaialble
-                        ofFile thumbFile;
-                        bool thumbExists = thumbFile.doesFileExist(thumbNailPath);
-                        //cout<< thumbExists << endl;
                         
-                        ofFile mediumFile;
-                        bool mediumExists = mediumFile.doesFileExist(imageMediumPath);
-                        //cout<<mediumExists << endl;
-                        
-                       // cout<< csv.get
-                        
-                        if ( thumbExists == true && mediumExists == true )
-                            {
-                                //now go through each line put exif in vector
-                                
-                                
-                                // check if image is being repeated based on ID
-                                
-                                
-                                vector <string> metaExif;
-                                for ( int l = 0 ; l < 4 ; l++)          // not shutter speed
-                                {
-                                    //cout<< ofToString(metaExif) << endl;
-                                    
-                                    string temp = csv.getString(k,l) ;
-                                    
+                        // check if number is taken
+                        bool isInArray = false;
 
-                                    metaExif.push_back(temp);
-                                }
+                        for ( int i = 0 ; i < imageVector.size() ; i++)
+                        {
+                            if (imageVector[i].imageNumber == ofToDouble( csv.getString(k, 0) ) )
+                            {
+                                isInArray = true;
+                                //cout<< "repetition"<< endl;
+                                break;
                                 
                                 
-                                
-                                string ss =  csv.getString(k, 4);
-                                
-                                if ( ss != " " )
+                            }
+                            else
+                                isInArray = false;
+                            
+                        }
+                        
+                        
+                        if ( isInArray == false )               // if new  element add to vector
+                            {
+                            string thumbNailPath = ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeT) + ofToString(j,2,'0') +"/"+ ofToString(csv.data[k][0])+ ".jpg" ;
+                            string imageMediumPath =  ofToString(newFlickrFolder) + ofToString(newImages) + ofToString(imageSizeM) + ofToString(j,2,'0') +"/" + ofToString(csv.data[k][0])+ ".jpg";
+                            
+                            // exists(); to see if paths are avaialble
+                            ofFile thumbFile;
+                            bool thumbExists = thumbFile.doesFileExist(thumbNailPath);
+                            //cout<< thumbExists << endl;
+                            
+                            ofFile mediumFile;
+                            bool mediumExists = mediumFile.doesFileExist(imageMediumPath);
+                            //cout<<mediumExists << endl;
+                            
+                           // cout<< csv.get
+                            ///check if the image is getting repeated
+                           // if(std::find(imageVector.begin(), imageVector.end(), elem) != v.end())
+                            
+                            
+                            
+                            ////
+                            
+                            if ( thumbExists == true && mediumExists == true )
                                 {
-                                vector <string> sss;
-                                sss = ofSplitString(ss , "/");
-                                //cout<<ofToString(sss)<<endl ;
+                                    //now go through each line put exif in vector
+                                    
+                                    
+                                    // check if image is being repeated based on ID
                                 
-                                if (sss.size() != 0)
+                                
+                                                                    vector <string> metaExif;
+                                    for ( int l = 0 ; l < 4 ; l++)          // not shutter speed
                                     {
+                                        //cout<< ofToString(metaExif) << endl;
                                         
-                                    if (sss.size() == 1)
-                                    {
+                                        string temp = csv.getString(k,l) ;
                                         
-                                        metaExif.push_back( ofToString(sss[0]) ) ;
+
+                                        metaExif.push_back(temp);
                                     }
                                     
-                                    if (sss.size() == 2)
+                                    
+                                    
+                                    string ss =  csv.getString(k, 4);
+                                    
+                                    if ( ss != " " )
                                     {
-                                        double num = ofToDouble( sss[0] );
-                                        double den = ofToDouble( sss[1] );
-                                        
-                                        double s = num/den;
-                                        //cout<< s;
-                                        metaExif.push_back( ofToString(s) ) ;
-                                        
-                                    }
+                                    vector <string> sss;
+                                    sss = ofSplitString(ss , "/");
+                                    //cout<<ofToString(sss)<<endl ;
                                     
-                                    //cout<< ofToString( metaExif )<< endl;
-                                        
-                                    
-                                    //final check
-                                    
-                                    if ( ofToDouble(metaExif[0]) != 0 && ofToDouble(metaExif[1]) != 0 && ofToDouble(metaExif[2]) != 0 &&ofToDouble(metaExif[3]) != 0 && ofToDouble(metaExif[4]) != 0  )
+                                    if (sss.size() != 0)
                                         {
                                             
-                                       
-                                                ImageDataClass tempDataClass;
-                                                tempDataClass.setExif(metaExif);
-                                                tempDataClass.setThumbImage(thumbNailPath);
-                                                tempDataClass.setFullImage(imageMediumPath);
-                                                tempDataClass.setBooleanFlags();
-                                                
-                                                imageVector.push_back(tempDataClass);
-                                                counter++;
-                                                //cout<<"counter: " << counter<< endl;
-                                                
-                                                // if data fine then add paths
+                                        if (sss.size() == 1)
+                                        {
+                                            
+                                            metaExif.push_back( ofToString(sss[0]) ) ;
                                         }
                                         
-                                    
+                                        if (sss.size() == 2)
+                                        {
+                                            double num = ofToDouble( sss[0] );
+                                            double den = ofToDouble( sss[1] );
+                                            
+                                            double s = num/den;
+                                            //cout<< s;
+                                            metaExif.push_back( ofToString(s) ) ;
+                                            
+                                        }
+                                        
+                                        //cout<< ofToString( metaExif )<< endl;
+                                            
+                                        
+                                        //final check
+                                        
+                                        if ( ofToDouble(metaExif[0]) != 0 && ofToDouble(metaExif[1]) != 0 && ofToDouble(metaExif[2]) != 0 &&ofToDouble(metaExif[3]) != 0 && ofToDouble(metaExif[4]) != 0  )
+                                            {
+                                                    ImageDataClass tempDataClass;
+                                                    tempDataClass.setExif(metaExif);
+                                                    tempDataClass.setThumbImage(thumbNailPath);
+                                                    tempDataClass.setFullImage(imageMediumPath);
+                                                    tempDataClass.setBooleanFlags();
+                                                
+                                                
+                                                    //if ( std::find(imageVector.begin(), imageVector.end(),tempDataClass)!= imageVector.end())
+                                                
+                                              
+                                                
+                                                    imageVector.push_back(tempDataClass);
+                                                    counter++;
+                                                    //cout<<"counter: " << counter<< endl;
+                                                    
+                                                    // if data fine then add paths
+                                            }
+                                            
+                                        
+                                        }
+                                        
                                     }
                                 }
                                 
