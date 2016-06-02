@@ -9,7 +9,7 @@
 #include "ofxCsv.h"
 
 
-#define NUMPOINTS 2000
+#define NUMPOINTS 1000
 #define NUMCLUSTERS 10
 #define gridSide 115;
 
@@ -213,6 +213,9 @@ class ofApp : public ofBaseApp{
     ofImage image1;
     //ofImage image2;
     ofShader superImageShader; //Shader
+    
+    ofTrueTypeFont textFont01;
+    
     
     
     

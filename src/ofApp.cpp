@@ -1,5 +1,6 @@
 #include "ofApp.h"
 
+#include<math.h>
 #include <algorithm>
 
 
@@ -16,10 +17,11 @@ void ofApp::setup(){
     //setting up labels;
     ExifLabels.push_back("Aperture");
     ExifLabels.push_back("ISO");
-    ExifLabels.push_back("Focal Len");
+    ExifLabels.push_back("Focal Len ");
     ExifLabels.push_back("Exposure");
     //////////////////
     
+    textFont01.loadFont("CaviarDreams.ttf", 14);
 
     
     globalMinExifData.assign(5,1000);
@@ -118,7 +120,7 @@ void ofApp::setup(){
     for ( int  i = 0 ; i < 4 ; i ++ )
     {
         gui1->addSpacer(40 , 400);
-        gui1->addRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , &minExifRange[i]  , &maxExifRange[i] , 60, 400 );
+        gui1->addRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , &minExifRange[i]  , &maxExifRange[i], 60, 400 );
         
         //gui1->addVerticalRangeSlider( ExifLabels[i] , ofToFloat(ofToString(minExifData[i])) ,  ofToFloat(ofToString(maxExifData[i])) , minExifRange[i]  , maxExifRange[i], 60 ,400  );
     }
@@ -212,7 +214,7 @@ void ofApp::draw(){
     
     //ofPushMatrix();
     // main view
-    ofBackground(192,100);
+    ofBackground(233,100);
     if (toggleview ==true)
         {
         
@@ -278,20 +280,56 @@ void ofApp::draw(){
                 selectedImageVector.at(selectedImageNumber).fullImage.draw(ofGetWidth() -xMargin - selectedImageVector.at(selectedImageNumber).fullImage.width - 500 , yMargin , selectedImageVector.at(selectedImageNumber).fullImage.width , selectedImageVector.at(selectedImageNumber).fullImage.height );
                 selectedImageVector.at(selectedImageNumber).clearFullImage();
                     
+//                    /// write values
+//                    for ( int i = 0 ; i<  4 ; i ++ )
+//                    {
+//                        ofSetColor(ofColor::red);
+//                        ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
+//                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 640 + yMargin + i * 20 );
+//                        //ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin -400  + i * 80, ofGetHeight() -  yMargin  );
+//                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -430  + i * 110, ofGetHeight() -  yMargin  );
+//                        ofSetColor(ofColor::white);
+//                        
+//
+//                    }
+//                    
+                    
+                    // create table
+                    
                     for ( int i = 0 ; i<  4 ; i ++ )
                     {
-                        ofSetColor(ofColor::red);
-                        ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
-                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 -40, 640 + yMargin + i * 20 );
-                        ofSetColor(ofColor::white);
                         
-                        ofSetColor(ofColor::red);
-                        //ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin -400  + i * 80, ofGetHeight() -  yMargin  );
-                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -430  + i * 110, ofGetHeight() -  yMargin  );
-                        ofSetColor(ofColor::white);
+                        ofSetColor(ofColor::blue);
+                        //ofDrawBitmapString( ExifLabels[i], ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
                         
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin - 500 - 140 , 640 + yMargin + i * 20 );
+                        
+                        int xStart = 1000;
+                        int xSpace = 90;
+                        int yStart = 950;
+                        int ySpace = 35;
+                        
+                        textFont01.drawString(ExifLabels[i] , ofGetWidth() - xStart + i * xSpace  , yStart);
+                        
+                        textFont01.drawString( ofToString( minExifRange[i]), ofGetWidth() - xStart + i * xSpace  , yStart + ySpace);
+                        ofSetColor(ofColor::red);
+                        textFont01.drawString( ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xStart + i * xSpace  , yStart + 2 * ySpace);
+                        ofSetColor(ofColor::blue);
+                        textFont01.drawString( ofToString(maxExifRange[i]), ofGetWidth() - xStart + i * xSpace  , yStart + 3 * ySpace);
 
+                        
+                        ofSetColor(ofColor::white);
+                        
+                        ofSetColor(ofColor::red);
+                        ofDrawBitmapString(ofToString( ExifLabels[i] ), ofGetWidth() - xMargin -450  + i * 110, ofGetHeight() -  yMargin  );
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -450  + i * 110, ofGetHeight() -  yMargin +30 );
+                        
+                        ofSetColor(ofColor::white);
+                        
                     }
+
+                    
+                    
                 
                 
                 }
@@ -441,7 +479,7 @@ void ofApp::mouseReleased(int x, int y, int button){
     if (toggleview && mouseInsideGrid)
     {
     updateSelections(actualNumber, selectedImageNumber);
-    selectedImageVector.push_back(imageVector.at(selectedImageNumber));
+    //selectedImageVector.push_back(imageVector.at(selectedImageNumber));
     updateGridFbo();
     }
     
@@ -775,28 +813,37 @@ void ofApp::updateSelections( double actualImageNumber  , double selectedImageNu
         imageVector[selectedImageNumber].isImageSelected = true;
         // add it to the picked images vector
         selectedImages.push_back(actualImageNumber);
+        selectedImageVector.push_back(imageVector.at(selectedImageNumber));
+
         cout<<"number of selected images: " <<selectedImages.size() <<endl;
         
         cout<< "actual number selected:  "<< actualImageNumber << "  selected number: "<< selectedImageNumber  <<endl;
         
     }
-    else if ( imageVector[selectedImageNumber].isImageSelected == true)
+    else
     {
+        cout<<"eerasing elementtt"<< endl;
         
         imageVector[selectedImageNumber].isImageSelected = false;
         
-        for ( int i = 0 ; i < selectedImages.size() ; i ++ )
+        for ( int i = 0 ; i < selectedImageVector.size() ; i ++ )
         {
-            if ( actualImageNumber == selectedImages[i] )
+            if (  selectedImageVector[i].imageNumber == actualImageNumber )
             {
                 selectedImages.erase(selectedImages.begin() + i );
+                
+                selectedImageVector.erase(selectedImageVector.begin() + i);
+                
+                cout<<"eerasing element in "<< endl;
+                
                 
             }
         }
         
+        
     }
     
-    
+
 }
 
 
@@ -975,7 +1022,7 @@ void ofApp::drawParallelCoordinates()
                     {
                         ofSetColor( ofColor::blue , 255 );
                         int setX  = xOffset + j * 112 ;
-                        int setY  = 400+ yOffset - ( selectedImageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
+                        int setY  = 400 + yOffset - ( selectedImageVector[i].exifData[j] - minExifData[j]) / ( maxExifData[j] - minExifData[j] ) * 400 ;
                         ofLine(setX, setY, setX+60, setY);
                         
                     }
@@ -990,6 +1037,9 @@ void ofApp::drawParallelCoordinates()
                         int setY2  = 400 + yOffset - ( selectedImageVector[i].exifData[j+1] - minExifData[j+1]) / ( maxExifData[j+1] - minExifData[j+1] ) * 400 ;
                         
                         ofLine(setX1, setY1, setX2, setY2);
+                        
+                        
+                        
                         
                     }
                     
@@ -1336,9 +1386,9 @@ void ofApp::loadFilesNewWay()
     //int dateArray1 [] = {5,5,5,5,5};
     int counter = 0 ;
     
-    for( int j  = 3 ;  j <= 4 ; j++ )
+    for( int j  = 1 ;  j <= 2 ; j++ )
         {
-            for ( int i = 4 ; i < dateArray[j -1 ]; i += 6)     // skip days as we dont need all the data
+            for ( int i = 2 ; i < dateArray[j - 1 ]; i += 10)     // skip days as we dont need all the data
             {
                 
                 // fix ofToString percision
