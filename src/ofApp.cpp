@@ -322,7 +322,7 @@ void ofApp::draw(){
                         
                         ofSetColor(ofColor::red);
                         ofDrawBitmapString(ofToString( ExifLabels[i] ), ofGetWidth() - xMargin -450  + i * 110, ofGetHeight() -  yMargin  );
-                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -450  + i * 110, ofGetHeight() -  yMargin +30 );
+                        ofDrawBitmapString(ofToString(selectedImageVector[selectedImageNumber].exifData[i]), ofGetWidth() - xMargin -450  + i * 110, ofGetHeight() -  yMargin +20 );
                         
                         ofSetColor(ofColor::white);
                         
@@ -1386,9 +1386,9 @@ void ofApp::loadFilesNewWay()
     //int dateArray1 [] = {5,5,5,5,5};
     int counter = 0 ;
     
-    for( int j  = 1 ;  j <= 2 ; j++ )
+    for( int j  = 1 ;  j <= 4 ; j++ )
         {
-            for ( int i = 2 ; i < dateArray[j - 1 ]; i += 10)     // skip days as we dont need all the data
+            for ( int i = 1 ; i < dateArray[j-1]; i+=5)     // skip days as we dont need all the data
             {
                 
                 // fix ofToString percision

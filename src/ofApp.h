@@ -9,7 +9,7 @@
 #include "ofxCsv.h"
 
 
-#define NUMPOINTS 1000
+#define NUMPOINTS 2500
 #define NUMCLUSTERS 10
 #define gridSide 115;
 
